@@ -26,45 +26,62 @@ export default function ApproveEmployeePage() {
   loadData();
 }, []);
   // Fetch existing employees
+  const validateForm = () => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  let errors = {};
+
+  if (!email) {
+    errors.email = "Email is required";
+  } else if (!emailRegex.test(email)) {
+    errors.email = "Please enter a valid email address";
+  }
+
+  if (!employeeId) {
+    errors.employeeId = "Employee ID is required";
+  }
+
+  return errors;
+};
+const submitEmployee = async () => {
+  await axiosClient.post("/approved-employees/", {
+    email,
+    employee_id: employeeId,
+  });
+
+  setMessage("Employee approved successfully");
+  setEmail("");
+  setEmployeeId("");
+  fetchEmployees();
+};
+const handleSubmitError = (err) => {
+  if (err.response?.data) {
+    const data = err.response.data;
+
+    setErrors({
+      email: data.email ? data.email[0] : "",
+      employeeId: data.employee_id ? data.employee_id[0] : "",
+      nonField: data.non_field_errors ? data.non_field_errors[0] : "",
+    });
+  } else {
+    setMessage("Something went wrong");
+  }
+};
 
   const handleSubmit = async () => {
   setErrors({});
   setMessage("");
 
-  // Frontend validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  let newErrors = {};
-  if (!email) newErrors.email = "Email is required";
-  else if (!emailRegex.test(email)) newErrors.email = "Please enter a valid email address";
+  const validationErrors = validateForm();
 
-  if (!employeeId) newErrors.employeeId = "Employee ID is required";
-
-  if (Object.keys(newErrors).length > 0) {
-    setErrors(newErrors);
+  if (Object.keys(validationErrors).length > 0) {
+    setErrors(validationErrors);
     return;
   }
 
   try {
-    await axiosClient.post("/approved-employees/", {
-      email,
-      employee_id: employeeId,
-    });
-
-    setMessage("Employee approved successfully");
-    setEmail("");
-    setEmployeeId("");
-    fetchEmployees();
+    await submitEmployee();
   } catch (err) {
-    if (err.response?.data) {
-      const data = err.response.data;
-      setErrors({
-        email: data.email ? data.email[0] : "",
-        employeeId: data.employee_id ? data.employee_id[0] : "",
-        nonField: data.non_field_errors ? data.non_field_errors[0] : "",
-      });
-    } else {
-      setMessage("Something went wrong");
-    }
+    handleSubmitError(err);
   }
 };
 
@@ -79,9 +96,10 @@ export default function ApproveEmployeePage() {
           <div className="flex flex-col lg:flex-row lg:items-end gap-4">
            
             <div className="flex flex-col flex-1">
-              <label className="mb-1 text-gray-400">Employee Email</label>
+              <label htmlFor="employee_email" className="mb-1 text-gray-400">Employee Email</label>
               <input
                 type="email"
+                id="employee_email"
                 placeholder="Enter email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -94,9 +112,10 @@ export default function ApproveEmployeePage() {
 
            
             <div className="flex flex-col flex-1">
-              <label className="mb-1 text-gray-400">Employee ID</label>
+              <label htmlFor="employee_id" className="mb-1 text-gray-400">Employee ID</label>
               <input
                 type="text"
+                id="employee_id"
                 placeholder="Enter employee ID"
                 value={employeeId}
                 onChange={(e) => setEmployeeId(e.target.value)}
@@ -141,9 +160,9 @@ export default function ApproveEmployeePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {employees.map((emp, index) => (
+                  {employees.map((emp) => (
                     <tr
-                      key={index}
+                      key={emp.employee_id}
                       className="border-b border-gray-800 hover:bg-gray-800 transition"
                     >
                       <td className="py-2">{emp.email || "N/A"}</td>

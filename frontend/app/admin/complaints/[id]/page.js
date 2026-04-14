@@ -175,13 +175,16 @@ console.log("FINAL IMAGE URL:", imageUrl);
           </div>
           
           {complaint.photo && (
+  <button
+  type="button"
+  onClick={() => setShowImage(true)}
+>
   <img
     src={imageUrl}
     alt="Complaint"
-    className="w-36 h-36 object-cover rounded cursor-pointer mt-2 hover:scale-105 transition-transform"
-    onClick={() => setShowImage(true)}
-    onError={(e) => console.log("THUMBNAIL ERROR", e)}
+    className="w-36 h-36 object-cover rounded cursor-pointer hover:scale-105 transition-transform"
   />
+</button>
 )}
           
           {updating && (
@@ -213,7 +216,7 @@ console.log("FINAL IMAGE URL:", imageUrl);
                       .filter((line) => line.trim())
                       .slice(0, 5)
                       .map((line, index) => (
-                        <p key={index}>
+                        <p key={line}>
                           <span className="text-green-400 font-semibold">
                             {index + 1}.
                           </span>{" "}
@@ -230,10 +233,11 @@ console.log("FINAL IMAGE URL:", imageUrl);
 
           {/* STATUS SELECT */}
           <div className="mt-4 flex flex-col space-y-2">
-            <label className="font-semibold">Update Status</label>
+            <label htmlFor="status" className="font-semibold">Update Status</label>
 
             <select
               value={status}
+              id="status"
               onChange={(e) => {
                 const newStatus = e.target.value;
 

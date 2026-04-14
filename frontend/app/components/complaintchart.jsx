@@ -1,6 +1,7 @@
 // ComplaintsChart.jsx
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import PropTypes from "prop-types";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -43,3 +44,11 @@ export default function ComplaintsChart({ counts }) {
     </div>
   );
 }
+ComplaintsChart.propTypes = {
+  counts: PropTypes.shape({
+    pending: PropTypes.number.isRequired,
+    inprogress: PropTypes.number.isRequired,
+    resolved: PropTypes.number.isRequired,
+    rejected: PropTypes.number.isRequired,
+  }).isRequired,
+};

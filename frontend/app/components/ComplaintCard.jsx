@@ -1,4 +1,5 @@
 import { useRouter } from "next/navigation";
+import PropTypes from "prop-types";
 
 export default function ComplaintCard({ complaint, onDelete, onEdit }) {
 
@@ -77,3 +78,15 @@ export default function ComplaintCard({ complaint, onDelete, onEdit }) {
 
   );
 }
+ComplaintCard.propTypes = {
+  complaint: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    title: PropTypes.string.isRequired,
+    location: PropTypes.string,
+    status: PropTypes.string.isRequired,
+    created_at: PropTypes.string.isRequired,
+  }).isRequired,
+
+  onDelete: PropTypes.func,
+  onEdit: PropTypes.func,
+};

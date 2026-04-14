@@ -141,9 +141,10 @@ useEffect(() => {
         <form onSubmit={handleSubmit} className="space-y-4">
           
           <div>
-            <label className="block text-sm mb-1 text-gray-400">Title *</label>
+            <label htmlFor='title' className="block text-sm mb-1 text-gray-400">Title *</label>
             <input
               type="text"
+              id="title"
               value={title}
               disabled={loading}
               onChange={(e) => {
@@ -160,9 +161,10 @@ useEffect(() => {
           </div>
           
           <div>
-            <label className="block text-sm mb-1 text-gray-400">Location *</label>
+            <label htmlFor='location' className="block text-sm mb-1 text-gray-400">Location *</label>
             <input
               type="text"
+              id="location"
               value={location}
               disabled={loading}
               onChange={(e) => {
@@ -179,9 +181,10 @@ useEffect(() => {
           </div>
           
           <div>
-            <label className="block text-sm mb-1 text-gray-400">Description</label>
+            <label htmlFor='description' className="block text-sm mb-1 text-gray-400">Description</label>
             <textarea
               value={description}
+              id="description"
               onChange={(e) => setDescription(e.target.value)}
               disabled={loading}
               rows="3"
@@ -190,9 +193,10 @@ useEffect(() => {
           </div>
           
           <div>
-            <label className="block text-sm mb-1 text-gray-400">Photo *</label>
+            <label htmlFor='file' className="block text-sm mb-1 text-gray-400">Photo *</label>
             <input
               type="file"
+              id='file'
               ref={fileInputRef}
               onChange={handleFileChange}
               disabled={loading}
@@ -219,8 +223,8 @@ useEffect(() => {
                   disabled={loading}
                   className="w-full p-2 text-sm bg-gray-800 border border-gray-700 rounded outline-none focus:border-blue-500"
                 >
-                  {categories.map((cat, index) => (
-                    <option key={index} value={cat}>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>
                       {cat}
                     </option>
                   ))}
@@ -269,7 +273,7 @@ useEffect(() => {
               .filter((line) => line.trim())
               .slice(0, 4)
               .map((point, index) => (
-                <p key={index}>
+                <p key={point}>
                   <span className="text-green-400 font-semibold">
                     {index + 1}.
                   </span>{" "}

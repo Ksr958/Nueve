@@ -1,10 +1,9 @@
-// components/AuthForm.jsx
 "use client";
 import { useState, useEffect } from "react";
 import axiosClient from "../utils/apis";
 import { loginUser, registerUser } from "../services/authService";
 import { useUser } from "../contexts/authContext";
-
+import PropTypes from "prop-types";
 export default function AuthForm({ mode, setMode, router }) {
   const { login } = useUser();
   const [loading, setLoading] = useState(false);
@@ -20,9 +19,10 @@ export default function AuthForm({ mode, setMode, router }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // OTP countdown
+  // ================= TIMER =================
   useEffect(() => {
     let interval;
+
     if (mode === "reset" && resendDisabled) {
       interval = setInterval(() => {
         setTimer((prev) => {
@@ -35,10 +35,51 @@ export default function AuthForm({ mode, setMode, router }) {
         });
       }, 1000);
     }
+
     return () => clearInterval(interval);
   }, [mode, resendDisabled]);
 
+  const formatTimer = () =>
+    `${Math.floor(timer / 60)}:${(timer % 60).toString().padStart(2, "0")}`;
 
+  // ================= VALIDATIONS =================
+  const validateLogin = () => {
+    if (!username || !password) {
+      setError("Please fill all required fields");
+      return false;
+    }
+    return true;
+  };
+
+  const validateRegister = () => {
+    if (!username || !email || !password) {
+      setError("Please fill all required fields");
+      return false;
+    }
+    if (username === email) {
+      setError("Username and Email cannot be same");
+      return false;
+    }
+    return true;
+  };
+
+  const validateForgot = () => {
+    if (!stepEmail) {
+      setError("Please enter your email");
+      return false;
+    }
+    return true;
+  };
+
+  const validateReset = () => {
+    if (!otp && !otpVerified) {
+      setError("Please enter OTP");
+      return false;
+    }
+    return true;
+  };
+
+  // ================= API FUNCTIONS =================
   async function sendOTP() {
     if (!stepEmail) {
       setError("Please enter your email first");
@@ -50,14 +91,16 @@ export default function AuthForm({ mode, setMode, router }) {
     setSuccess("");
 
     try {
-      const res = await axiosClient.post("/forgot-password/", { email: stepEmail });
+      const res = await axiosClient.post("/forgot-password/", {
+        email: stepEmail,
+      });
+
       setSuccess(res.data.message);
       setTimer(300);
       setResendDisabled(true);
       setMode("reset");
     } catch (err) {
-      const message = err.response?.data?.error || "Something went wrong. Please try again.";
-      setError(message);
+      setError(err.response?.data?.error || "Something went wrong. Please try again.");
       setMode("forgot");
     } finally {
       setLoading(false);
@@ -74,20 +117,17 @@ export default function AuthForm({ mode, setMode, router }) {
       return;
     }
 
-    
-
     try {
-      const res = await axiosClient.post("/verify-otp/", { email: stepEmail, otp });
+      const res = await axiosClient.post("/verify-otp/", {
+        email: stepEmail,
+        otp,
+      });
+
       setSuccess(res.data.message);
       setOtpVerified(true);
     } catch (err) {
-      const message = err.response?.data?.error || "OTP verification failed";
-      setError(message);
-    } finally {
-      setLoading(false);
-      
+      setError(err.response?.data?.error || "OTP verification failed");
     }
-    
   }
 
   async function resetPassword() {
@@ -95,6 +135,7 @@ export default function AuthForm({ mode, setMode, router }) {
       setError("Please fill all required fields to reset password");
       return;
     }
+
     setLoading(true);
     setError("");
     setSuccess("");
@@ -104,6 +145,7 @@ export default function AuthForm({ mode, setMode, router }) {
         new_password: password,
         confirm_password: confirmPassword,
       });
+
       setSuccess(res.data.message);
       setMode("login");
       setOtpVerified(false);
@@ -148,57 +190,80 @@ export default function AuthForm({ mode, setMode, router }) {
       setLoading(false);
     }
   }
-//handling submit
+
+  // ================= MAIN SUBMIT =================
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
     setSuccess("");
 
-    if (mode === "login" && (!username || !password)) {
-      setError("Please fill all required fields");
-      return;
-    }
-    if (mode === "register" && (!username || !email || !password)) {
-      setError("Please fill all required fields");
-      return;
-    }
-    if(mode === "register" &&(username === email )){
-      setError("Username and Email cannot be same")
-      return;
-    }
-    if (mode === "forgot" && !stepEmail) {
-      setError("Please enter your email");
-      return;
-    }
-    if (mode === "reset") {
-      if (!otp && !otpVerified) {
-        setError("Please enter OTP");
-        return;
-      }
-    }
+    if (mode === "login" && !validateLogin()) return;
+    if (mode === "register" && !validateRegister()) return;
+    if (mode === "forgot" && !validateForgot()) return;
+    if (mode === "reset" && !validateReset()) return;
 
-    if (mode === "login") await handleLogin();
-    else if (mode === "register") await handleRegister();
-    else if (mode === "forgot") await sendOTP();
-    else if (mode === "reset") {
-      if (!otpVerified) await verifyOTP();
-      else await resetPassword();
+    switch (mode) {
+      case "login":
+        await handleLogin();
+        break;
+
+      case "register":
+        await handleRegister();
+        break;
+
+      case "forgot":
+        await sendOTP();
+        break;
+
+      case "reset":
+        if (otpVerified) {
+  await resetPassword();
+} else {
+  await verifyOTP();
+}
+        break;
+
+      default:
+        break;
     }
   }
 
-  const isPasswordVisible = mode === "login" || mode === "register" || (mode === "reset" && otpVerified);
+  const isPasswordVisible =
+    mode === "login" ||
+    mode === "register" ||
+    (mode === "reset" && otpVerified);
 
+  const titleMap = {
+    login: "Welcome Back",
+    register: "Register",
+    forgot: "Forgot Password",
+    reset: "Reset Password",
+  };
+
+  const buttonMap = {
+    login: "Login",
+    register: "Create Account",
+    forgot: "Send OTP",
+    reset: "Reset Password",
+  };
+
+  const handleEmailChange = (e) => {
+    if (mode === "register") setEmail(e.target.value);
+    else setStepEmail(e.target.value);
+  };
+
+  // ================= UI =================
   return (
     <div className="min-w-[400px] max-w-lg bg-white rounded-2xl p-10">
       <div className="mb-10 text-left">
         <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
-          {mode === "login" ? "Welcome Back" : mode === "register" ? "Register" : mode === "forgot" ? "Forgot Password" : "Reset Password"}
+          {titleMap[mode]}
         </h2>
         <p className="text-slate-500 text-base mt-2 font-medium">
           Please enter your details to continue.
         </p>
       </div>
- 
+
       <form onSubmit={handleSubmit} className="space-y-6">
         {(mode === "login" || mode === "register") && (
           <input
@@ -215,7 +280,7 @@ export default function AuthForm({ mode, setMode, router }) {
             type="email"
             placeholder="Email"
             value={mode === "register" ? email : stepEmail}
-            onChange={(e) => (mode === "register" ? setEmail(e.target.value) : setStepEmail(e.target.value))}
+            onChange={handleEmailChange}
             className="mt-2 w-full border border-slate-300 focus:border-blue-200 rounded-xl px-4 py-3 text-sm"
           />
         )}
@@ -227,17 +292,20 @@ export default function AuthForm({ mode, setMode, router }) {
               placeholder="OTP"
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
-              className="mt-2 w-full border border-slate-300  focus:ring-blue-200 rounded-xl px-4 py-3 text-sm"
+              className="mt-2 w-full border border-slate-300 rounded-xl px-4 py-3 text-sm"
             />
+
             <div className="text-right mt-2">
               <button
                 type="button"
                 disabled={resendDisabled}
                 onClick={sendOTP}
-                className={`text-sm ${resendDisabled ? "text-gray-400" : "text-blue-600 hover:underline"}`}
+                className={`text-sm ${
+                  resendDisabled ? "text-gray-400" : "text-blue-600 hover:underline"
+                }`}
               >
                 {resendDisabled
-                  ? `Resend OTP in ${Math.floor(timer / 60)}:${(timer % 60).toString().padStart(2, "0")}`
+                  ? `Resend OTP in ${formatTimer()}`
                   : "Resend OTP"}
               </button>
             </div>
@@ -260,73 +328,84 @@ export default function AuthForm({ mode, setMode, router }) {
             placeholder="Confirm Password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="mt-2 w-full border border-slate-300 focus:border-blue-200 focus:ring-2 focus:ring-blue-200 rounded-xl px-4 py-3 text-sm"
+            className="mt-2 w-full border border-slate-300 focus:ring-2 focus:ring-blue-200 rounded-xl px-4 py-3 text-sm"
           />
         )}
 
-        {error && <p className="text-red-500 text-lg font-medium text-center">{error}</p>}
-        {success && <p className="text-green-600 text-lg text-center font-medium">{success}</p>}
+        {error && (
+          <p className="text-red-500 text-lg font-medium text-center">{error}</p>
+        )}
+
+        {success && (
+          <p className="text-green-600 text-lg text-center font-medium">
+            {success}
+          </p>
+        )}
 
         <button
           type="submit"
           disabled={loading}
           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl cursor-pointer"
         >
-        {loading
-          ? "Processing..."
-          : mode === "login"
-          ? "Login"
-          : mode === "register" 
-          ? "Create Account"
-          : mode === "forgot"
-          ? "Send OTP"
-          : mode === "reset"
-          ? "Reset Password"
-          : "Submit"}
+          {loading ? "Processing..." : buttonMap[mode] || "Submit"}
         </button>
 
         {mode === "login" && (
           <div className="text-right mt-2">
-            <button type="button" onClick={() => setMode("forgot")} className="text-sm text-blue-600 hover:underline">
+            <button
+              type="button"
+              onClick={() => setMode("forgot")}
+              className="text-sm text-blue-600 hover:underline"
+            >
               Forgot Password?
             </button>
           </div>
         )}
 
-        {(mode=="login" || mode=="register")&& <div className="mt-10 text-center">
-          <button
-            type="button"
-            onClick={() => {
-              setMode(mode === "login" ? "register" : "login")
-              setError("")
-              setSuccess("")
+        {(mode === "login" || mode === "register") && (
+          <div className="mt-10 text-center">
+            <button
+              type="button"
+              onClick={() => {
+                setMode(mode === "login" ? "register" : "login");
+                setError("");
+                setSuccess("");
               }}
-            className="text-base text-blue-600 underline cursor-pointer"
-          >
-            {mode === "login" ? "Don't have an account? Register" : "Already have an account? Login"}
-          </button>
-        </div>}
+              className="text-base text-blue-600 underline cursor-pointer"
+            >
+              {mode === "login"
+                ? "Don't have an account? Register"
+                : "Already have an account? Login"}
+            </button>
+          </div>
+        )}
+
         {(mode === "forgot" || mode === "reset") && (
-      <div className="text-center mt-4">
-        <button
-          type="button"
-          onClick={() => {
-            setMode("login");
-            setOtpVerified(false);
-            setOtp("");
-            setPassword("");
-            setConfirmPassword("");
-            setStepEmail("");
-            setError("");
-            setSuccess("");
-          }}
-          className="text-sm text-blue-600 hover:underline"
-        >
-          Back to Login
-        </button>
-      </div>
-)}
+          <div className="text-center mt-4">
+            <button
+              type="button"
+              onClick={() => {
+                setMode("login");
+                setOtpVerified(false);
+                setOtp("");
+                setPassword("");
+                setConfirmPassword("");
+                setStepEmail("");
+                setError("");
+                setSuccess("");
+              }}
+              className="text-sm text-blue-600 hover:underline"
+            >
+              Back to Login
+            </button>
+          </div>
+        )}
       </form>
     </div>
   );
 }
+AuthForm.propTypes = {
+  mode: PropTypes.string.isRequired,
+  setMode: PropTypes.func.isRequired,
+  router: PropTypes.object,
+};

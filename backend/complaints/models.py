@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 
 class User(AbstractUser):
-    otp = models.CharField(max_length=6, null=True, blank=True)
+    otp = models.CharField(max_length=6,blank=True)
     otp_expiry = models.DateTimeField(null=True, blank=True)
     otp_verified = models.BooleanField(default=False)
 class Approvedemployee(models.Model):
@@ -39,11 +39,11 @@ class Complaint(models.Model):
         db_index=True
     )
 
-    rejection_reason = models.TextField(null=True, blank=True)
+    rejection_reason = models.TextField( blank=True)
 
     status_updated_at = models.DateTimeField(null=True, blank=True)
 
-    ai_recommended_solution = models.TextField(null=True, blank=True)
+    ai_recommended_solution = models.TextField(blank=True)
 
     confidence_score = models.FloatField(null=True, blank=True)
 

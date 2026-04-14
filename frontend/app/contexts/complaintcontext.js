@@ -1,70 +1,81 @@
-"use client"; 
-import { createContext, useContext, useState, useEffect } from "react";
+"use client";
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from "react";
 import axiosClient from "../utils/apis";
 import { useUser } from "./authContext";
+import PropTypes from "prop-types";
 
 const ComplaintContext = createContext();
 
 export function ComplaintProvider({ children }) {
   const { user } = useUser();
   const [complaints, setComplaints] = useState([]);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
 
- async function fetchComplaints() {
-  if (!user) return;
+  const fetchComplaints = useCallback(async () => {
+    if (!user) return;
 
-  const token = localStorage.getItem("accessToken");
-  if (!token) {
-    setComplaints([]);
-    setLoading(false);
-    return;
-  }
-
-  setLoading(true);
-  try {
-    let endpoint;
-
-    if (user.is_admin) {
-      endpoint = "/admin/complaints/";
-    } else {
-      endpoint = "/user/complaints/";
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      setComplaints([]);
+      setLoading(false);
+      return;
     }
 
-    const res = await axiosClient.get(endpoint);
-   
-    const data = res.data.results || res.data || [];
+    setLoading(true);
 
-    setComplaints(Array.isArray(data) ? data : []);
+    try {
+      let endpoint;
 
-  } catch (err) {
+      if (user.is_admin) {
+        endpoint = "/admin/complaints/";
+      } else {
+        endpoint = "/user/complaints/";
+      }
+
+      const res = await axiosClient.get(endpoint);
+      const data = res.data.results || res.data || [];
+
+      setComplaints(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to fetch complaints:", err);
+      setComplaints([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
+
+  const clearComplaints = useCallback(() => {
     setComplaints([]);
-  } finally {
-    setLoading(false);
-  }
-}
+  }, []);
 
-  function clearComplaints() {
-    setComplaints([]);
-  }
-  
   useEffect(() => {
     if (user) fetchComplaints();
     else clearComplaints();
-  }, [user]);
-  
+  }, [user, fetchComplaints, clearComplaints]);
 
-  const counts = {
-    total: complaints.length,
-    pending: complaints.filter((c) => c.status === "submitted").length,
-    resolved: complaints.filter((c) => c.status === "resolved").length,
-    inprogress: complaints.filter((c) => c.status === "verified").length,
-    rejected: complaints.filter((c) => c.status === "rejected").length,
-  };
+  const counts = useMemo(() => {
+    return {
+      total: complaints.length,
+      pending: complaints.filter((c) => c.status === "submitted").length,
+      resolved: complaints.filter((c) => c.status === "resolved").length,
+      inprogress: complaints.filter((c) => c.status === "verified").length,
+      rejected: complaints.filter((c) => c.status === "rejected").length,
+    };
+  }, [complaints]);
+
+  const value = useMemo(() => {
+    return {
+      complaints,
+      setComplaints,
+      counts,
+      fetchComplaints,
+      clearComplaints,
+      loading,
+    };
+  }, [complaints, counts, fetchComplaints, clearComplaints, loading]);
 
   return (
-    <ComplaintContext.Provider
-      value={{ complaints, setComplaints, counts, fetchComplaints, clearComplaints, loading }}
-    >
+    <ComplaintContext.Provider value={value}>
       {children}
     </ComplaintContext.Provider>
   );
@@ -73,3 +84,6 @@ export function ComplaintProvider({ children }) {
 export function useComplaints() {
   return useContext(ComplaintContext);
 }
+ComplaintProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};

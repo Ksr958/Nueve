@@ -2,6 +2,7 @@
 "use client";
 
 import AdminProtectedRoute from "../components/adminprotectedroute";
+import PropTypes from "prop-types";
 
 export default function AdminLayout({ children }) {
   return (
@@ -10,3 +11,6 @@ export default function AdminLayout({ children }) {
     </AdminProtectedRoute>
   );
 }
+AdminLayout.propTypes = {
+  children: PropTypes.node.isRequired,
+};

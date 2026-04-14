@@ -146,7 +146,7 @@ class UserComplaintListCreateView(generics.ListCreateAPIView):
             result = detect_issue(temp_path)
             category = result.get("category")
             confidence = result.get("confidence")
-        except:
+        except Exception:
             category = None
             confidence = None
 
@@ -159,7 +159,7 @@ class UserComplaintListCreateView(generics.ListCreateAPIView):
                 request.data.get("description"),
                 request.data.get("category")
             )
-        except:
+        except Exception:
             ai_solution = "Basic troubleshooting steps."
 
         serializer = self.get_serializer(data=request.data)
@@ -262,7 +262,7 @@ class ForgetPassword(APIView):
 
         try:
             user = User.objects.get(email=email)
-        except:
+        except Exception:
             return Response({"error": "User not found"}, status=404)
 
         otp = str(random.randint(100000, 999999))
@@ -290,7 +290,7 @@ class VerifyOTP(APIView):
             return Response({"error": "Email and OTP required"}, status=400)
         try:
             user = User.objects.get(email=email)
-        except:
+        except Exception:
             return Response({"error": "User not found"}, status=404)
 
         if user.otp != otp:
@@ -313,7 +313,7 @@ class ResetPassword(APIView):
 
         try:
             user = User.objects.get(otp_verified=True)
-        except:
+        except Exception:
             return Response({"error": "OTP verification required"}, status=400)
 
         user.password = make_password(new_password)
@@ -336,7 +336,7 @@ class DeleteComplaintView(APIView):
             )
 
         # Check if within 10 minutes
-        if not complaint.status=="submitted":
+        if  complaint.status!= "submitted":
             return Response(
                 {"error": "Cannot delete complaint after verification."
                  },

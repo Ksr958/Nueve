@@ -52,7 +52,7 @@ def send_complaint_email(user_email, user_name, complaint, status, solution=None
         {f"<h3>Resolved Solution:</h3><p>{solution}</p>" if status == "resolved" else ""}
         {f"<h3>Rejection Reason:</h3><p>{complaint.rejection_reason}</p>" if status == "rejected" else ""}
 
-        {f'<h3>Photo:</h3><img src="cid:complaint_image" alt="Complaint Image" style="max-width:600px; height:auto;"/>' if complaint.photo else ""}
+       {('<h3>Photo:</h3><img src="cid:complaint_image" alt="Complaint Image" style="max-width:600px; height:auto;"/>') if complaint.photo else ""}
 
         <p>Thank you for using our system.</p>
         <p>Regards,<br>Nueve Support Team</p>

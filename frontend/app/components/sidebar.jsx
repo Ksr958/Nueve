@@ -2,7 +2,7 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import { LayoutDashboard, FolderOpen, PlusCircle } from "lucide-react";
-
+import PropTypes from "prop-types";
 export default function Sidebar({loading}) {
   const router = useRouter();
   const pathname = usePathname();
@@ -14,7 +14,6 @@ export default function Sidebar({loading}) {
   ];
 
   return (
-    <>
       
       <div
         className={`fixed top-0 left-0 h-screen w-56 bg-[#0f172a] border-r border-white/10 p-4 z-40 shadow-xl
@@ -56,6 +55,8 @@ export default function Sidebar({loading}) {
 
         
       </div>
-    </>
   );
 }
+Sidebar.propTypes = {
+  loading: PropTypes.bool,
+};

@@ -128,29 +128,38 @@ class Complaintserializer(serializers.ModelSerializer):
         read_only_fields = ['user']
     def validate(self, data):
         request = self.context.get("request")
-        user = request.user if request else None
+        user = getattr(request, "user", None)
 
+        self._check_final_status()
+
+        if user and not user.is_staff:
+            return self._validate_user(data)
+
+        return self._validate_admin(data)
+    def _check_final_status(self):
         FINAL_STATUSES = ["resolved", "rejected"]
-       
+
         if self.instance and self.instance.status in FINAL_STATUSES:
             raise serializers.ValidationError(
                 f"This complaint is already finalized: {self.instance.status}"
             )
-        if user and not user.is_staff:
-            #User should NOT touch status at all
-            if "status" in data:
-                raise serializers.ValidationError("You cannot change status")
+    def _validate_user(self, data):
+        if "status" in data:
+            raise serializers.ValidationError("You cannot change status")
 
-            if "rejection_reason" in data:
-                raise serializers.ValidationError("You cannot set rejection reason")
-            if "solution" in data:
-                raise serializers.ValidationError("You cannot set Provide Solution")
+        if "rejection_reason" in data:
+            raise serializers.ValidationError("You cannot set rejection reason")
 
-            return data  # skip all status validation
+        if "solution" in data:
+            raise serializers.ValidationError("You cannot set Provide Solution")
 
-        # admin
-        status = data.get('status', getattr(self.instance, 'status', None))
-        rejection_reason = data.get('rejection_reason', getattr(self.instance, 'rejection_reason', None))
+        return data
+    def _validate_admin(self, data):
+        status = data.get("status", getattr(self.instance, "status", None))
+        rejection_reason = data.get(
+            "rejection_reason",
+            getattr(self.instance, "rejection_reason", None)
+        )
 
         VALID_TRANSITIONS = {
             "submitted": ["verified", "resolved", "rejected"],
@@ -159,6 +168,7 @@ class Complaintserializer(serializers.ModelSerializer):
 
         if self.instance:
             old_status = self.instance.status
+
             if status not in VALID_TRANSITIONS.get(old_status, []):
                 raise serializers.ValidationError(
                     f"Cannot change status from '{old_status}' to '{status}'"
@@ -168,6 +178,7 @@ class Complaintserializer(serializers.ModelSerializer):
             raise serializers.ValidationError({
                 "rejection_reason": "Required when rejected."
             })
+
         return data
     def validate_photo(self, value):
         try:

@@ -39,9 +39,6 @@ urlpatterns = [
     path("api/verify-otp/", VerifyOTP.as_view(), name="verify-otp"), 
     path("api/reset-password/", ResetPassword.as_view(), name="reset-password"),
     path('api/delete/<int:complaint_id>/', DeleteComplaintView.as_view(), name='delete-complaint'),
-    #path('api/find-technician/', find_technician, name='find_technician'),
-    #path('api/admin/nearby-shops/', nearby_shops),
-     #path('test-upload/', views.test_upload, name='test-upload')
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

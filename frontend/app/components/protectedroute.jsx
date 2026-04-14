@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "../contexts/authContext";
+import PropTypes from "prop-types";
 
 export default function ProtectedRoute({ children }) {
   const { user, loading } = useUser();
@@ -24,3 +25,6 @@ export default function ProtectedRoute({ children }) {
 
   return children;
 }
+ProtectedRoute.propTypes = {
+  children: PropTypes.node.isRequired,
+};

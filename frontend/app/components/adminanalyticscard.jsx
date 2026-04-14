@@ -1,4 +1,6 @@
+import PropTypes from "prop-types";
 export default function AnalyticsCard({ title, value }) {
+  
   return (
     <div className="p-4 border border-slate-800 rounded-xl bg-slate-900/60 shadow-md backdrop-blur-sm">
       
@@ -13,3 +15,7 @@ export default function AnalyticsCard({ title, value }) {
     </div>
   );
 }
+AnalyticsCard.propTypes = {
+  title: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+};

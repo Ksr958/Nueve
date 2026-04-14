@@ -58,14 +58,14 @@ export default function RecentUpdates() {
 
             <div className="flex-1 min-w-0 pb-3">
               <div className="flex items-center gap-2">
-                <p
+                <button
                   className="text-sm sm:text-base font-semibold text-white truncate cursor-pointer"
                   onClick={() =>
                     router.push(`/view-complaint/${c.id}`)
                   }
                 >
                   {c.category || "General"}
-                </p>
+                </button>
 
                 {c.isNew && (
                   <span className="text-[9px] font-bold px-1.5 py-[2px] rounded bg-indigo-500/20 text-indigo-300 border border-indigo-400/20 animate-pulse">

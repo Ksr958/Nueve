@@ -83,6 +83,17 @@ export default function AdminComplaints() {
       );
   }, [filteredComplaints, currentPage]);
 
+  const getStatusClass = (status) => {
+  switch (status) {
+    case "resolved":
+      return "bg-green-500/20 text-green-400";
+    case "rejected":
+      return "bg-red-500/20 text-red-400";
+    default:
+      return "bg-yellow-500/20 text-yellow-400";
+  }
+};
+
   return (
     <div className="flex bg-[#020617] min-h-screen">
       <AdminSidebar />
@@ -200,15 +211,7 @@ export default function AdminComplaints() {
                       {c.location || "N/A"}
                     </td>
                     <td className="px-4 py-3">
-                      <span
-                        className={`px-2 py-1 text-xs rounded-full ${
-                          c.status === "resolved"
-                            ? "bg-green-500/20 text-green-400"
-                            : c.status === "rejected"
-                            ? "bg-red-500/20 text-red-400"
-                            : "bg-yellow-500/20 text-yellow-400"
-                        }`}
-                      >
+                      <span className={`px-2 py-1 text-xs rounded-full ${getStatusClass(c.status)}`}>
                         {c.status}
                       </span>
                     </td>
@@ -241,20 +244,24 @@ export default function AdminComplaints() {
           </button>
 
           <div className="flex gap-2">
-            {[...Array(totalPages)].map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrentPage(i + 1)}
-                className={`px-3 py-1 rounded-md ${
-                  currentPage === i + 1
-                    ? "bg-blue-600"
-                    : "bg-slate-800"
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
-          </div>
+  {Array.from({ length: totalPages }).map((_, i) => {
+    const pageNumber = i + 1;
+
+    return (
+      <button
+        key={pageNumber}
+        onClick={() => setCurrentPage(pageNumber)}
+        className={`px-3 py-1 rounded-md ${
+          currentPage === pageNumber
+            ? "bg-blue-600"
+            : "bg-slate-800"
+        }`}
+      >
+        {pageNumber}
+      </button>
+    );
+  })}
+</div>
 
           <button
             onClick={() =>

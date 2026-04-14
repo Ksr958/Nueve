@@ -1,49 +1,54 @@
 "use client";
-import { createContext, useContext, useState, useEffect } from "react";
-
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from "react";
+import PropTypes from "prop-types";
 const UserContext = createContext();
 
 export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  
-useEffect(() => {
-  const token = localStorage.getItem("accessToken");
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
 
-  
-  if (!token) {
-    setUser(null);
+    if (!token) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
+    const storedUser = localStorage.getItem("username");
+    const storedIsAdmin = localStorage.getItem("is_admin") === "true";
+
+    if (storedUser) {
+      setUser({ username: storedUser, is_admin: storedIsAdmin });
+    }
+
     setLoading(false);
-    return;
-  }
+  }, []);
 
-  const storedUser = localStorage.getItem("username");
-  const storedIsAdmin = localStorage.getItem("is_admin") === "true";
-
-  if (storedUser) {
-    setUser({ username: storedUser, is_admin: storedIsAdmin });
-  }
-
-  setLoading(false);
-}, []);
-
-  
-  async function login(userName, accessToken, refreshToken, is_admin) {
+  // ✅ memoized login function
+  const login = useCallback((userName, accessToken, refreshToken, is_admin) => {
     localStorage.setItem("username", userName);
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("refreshToken", refreshToken);
-    localStorage.setItem("is_admin", is_admin); // ⚡ save as string
-    setUser({ username: userName, is_admin: is_admin }); // ⚡ use is_admin
-  }
- 
-  function logout() {
+    localStorage.setItem("is_admin", is_admin);
+
+    setUser({ username: userName, is_admin });
+  }, []);
+
+  // ✅ memoized logout function
+  const logout = useCallback(() => {
     setUser(null);
     localStorage.clear();
-  }
+  }, []);
+
+  // ✅ FIX SonarQube S6481
+  const value = useMemo(() => {
+    return { user, login, logout, loading };
+  }, [user, login, logout, loading]);
 
   return (
-    <UserContext.Provider value={{ user,login, logout, loading }}>
+    <UserContext.Provider value={value}>
       {children}
     </UserContext.Provider>
   );
@@ -52,3 +57,6 @@ useEffect(() => {
 export function useUser() {
   return useContext(UserContext);
 }
+UserProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};

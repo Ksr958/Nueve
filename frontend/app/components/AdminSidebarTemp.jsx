@@ -22,42 +22,51 @@ export default function AdminSidebar() {
 
       
       <ul className="space-y-3 text-sm">
+  <li>
+    <button
+      onClick={() => router.push("/admin/dashboard")}
+      className="w-full text-left cursor-pointer px-3 py-2 rounded-md hover:bg-gray-800 hover:text-blue-400 transition"
+    >
+      Dashboard
+    </button>
+  </li>
 
-        <li
-          className="cursor-pointer px-3 py-2 rounded-md hover:bg-gray-800 hover:text-blue-400 transition"
-          onClick={() => router.push("/admin/dashboard")}
-        >
-          Dashboard
-        </li>
+  <li>
+    <button
+      onClick={() => router.push("/admin/complaints")}
+      className="w-full text-left cursor-pointer px-3 py-2 rounded-md hover:bg-gray-800 hover:text-blue-400 transition"
+    >
+      Complaints
+    </button>
+  </li>
 
-        <li
-          className="cursor-pointer px-3 py-2 rounded-md hover:bg-gray-800 hover:text-blue-400 transition"
-          onClick={() => router.push("/admin/complaints")}
-        >
-          Complaints
-        </li>
+  <li>
+    <button
+      onClick={() => router.push("/admin/approveemployee")}
+      className="w-full text-left cursor-pointer px-3 py-2 rounded-md hover:bg-gray-800 hover:text-blue-400 transition"
+    >
+      Approve Employee
+    </button>
+  </li>
 
-        
-        <li
-          className="cursor-pointer px-3 py-2 rounded-md hover:bg-gray-800 hover:text-blue-400 transition"
-          onClick={() => router.push("/admin/approveemployee")}
-        >
-          Approve Employee
-        </li>
-        <li
-          className="cursor-pointer px-3 py-2 rounded-md hover:bg-gray-800 hover:text-blue-400 transition"
-          onClick={() => router.push("/admin/findtechnician")}
-        >
-          Find Tech
-        </li>
-        <li
-          className="cursor-pointer px-3 py-2 rounded-md hover:bg-gray-800 hover:text-red-400 transition"
-          onClick={handleLogout}
-        >
-          Logout
-        </li>
+  <li>
+    <button
+      onClick={() => router.push("/admin/findtechnician")}
+      className="w-full text-left cursor-pointer px-3 py-2 rounded-md hover:bg-gray-800 hover:text-blue-400 transition"
+    >
+      Find Tech
+    </button>
+  </li>
 
-      </ul>
+  <li>
+    <button
+      onClick={handleLogout}
+      className="w-full text-left cursor-pointer px-3 py-2 rounded-md hover:bg-gray-800 hover:text-red-400 transition"
+    >
+      Logout
+    </button>
+  </li>
+</ul>
     </div>
   );
 }
