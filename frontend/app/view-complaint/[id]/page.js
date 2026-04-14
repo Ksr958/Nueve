@@ -9,7 +9,7 @@ import ProtectedRoute from "../../components/protectedroute";
 export default function ComplaintDetails() {
   const router = useRouter();
   const { id } = useParams();
-  const { complaints, loading: complaintsLoading } = useComplaints();
+  const { complaints } = useComplaints();
   const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
   
   const complaint = useMemo(
@@ -29,12 +29,18 @@ export default function ComplaintDetails() {
     <ProtectedRoute>
     <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#020617] to-[#020617] p-6 ">
       <div className="mb-4">
-        <img
-          src="/arrow.png"
-          alt="Back to Dashboard"
-          className="h-10 w-10 cursor-pointer"
-          onClick={() => router.back()}
-        />
+        <button
+    type="button"
+    onClick={() => router.back()}
+    className="p-0 bg-transparent border-0 cursor-pointer"
+    aria-label="Back to Dashboard"
+  >
+    <img
+      src="/arrow.png"
+      alt="Back to Dashboard"
+      className="h-10 w-10"
+    />
+  </button>
       </div>
       <div className="max-w-2xl mx-auto space-y-5 ">
         <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-5 shadow-lg">
@@ -108,7 +114,7 @@ export default function ComplaintDetails() {
        
         return Array.isArray(steps)
           ? steps.slice(0, 4).map((point, idx) => (
-              <p key={idx}>
+              <p key={point}>
                 <span className="text-green-400 font-semibold">
                   {idx + 1}.
                 </span>{" "}

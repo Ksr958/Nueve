@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import axiosClient from "../../utils/apis";
 import { useComplaints } from "../../contexts/complaintcontext";
-import { useUser } from "../../contexts/authContext";
 import ProtectedRoute from "../../components/protectedroute";
 export default function UpdateComplaint() {
   const { id } = useParams();
@@ -21,9 +20,8 @@ export default function UpdateComplaint() {
   const [showDeleteSuccess,setshowDeleteSuccess]=useState(false);
   const [category, setCategory] = useState("");
   const [detecting, setDetecting] = useState(false);
-  const { user, loading: userLoading } = useUser();
   
-  const complaint = complaints.find(c => c.id === parseInt(id));
+  const complaint = complaints.find(c => c.id === Number.parseInt(id));
   useEffect(() => {
   if (complaint) {
     setTitle(complaint.title);
@@ -91,8 +89,12 @@ const handleFileChange = async (e) => {
   }
  
   async function handleDelete() {
-    if (!window.confirm("Are you sure you want to delete this complaint?")) return;
-      setLoading(true)
+    const isConfirmed = globalThis.confirm(
+    "Are you sure you want to delete this complaint?"
+  );
+  if (!isConfirmed) return;
+
+  setLoading(true);
     try {
       await axiosClient.delete(`/delete/${id}/`);
       
@@ -139,7 +141,7 @@ const handleFileChange = async (e) => {
         onClick={() => router.push("/userdashboard")}
         className="absolute top-6 left-6 p-2 rounded-full bg-white/10 hover:bg-white/20 transition"
       >
-        <img src="/arrow.png" className="w-9 h-9" />
+        <img src="/arrow.png" alt="arrow to go back" className="w-9 h-9" />
       </button>
 
       <form
@@ -158,30 +160,34 @@ const handleFileChange = async (e) => {
             />
           )}
 
-        <label className="block mb-1 text-sm text-slate-400">Title</label>
+        <label htmlFor="title" className="block mb-1 text-sm text-slate-400">Title</label>
         <input
           className="w-full bg-transparent border border-white/10 p-2 mb-4 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
           value={title}
+          id="title"
           onChange={(e) => setTitle(e.target.value)}
         />
-        <label className="block mb-1 text-sm text-slate-400">Location</label>
+        <label htmlFor="location" className="block mb-1 text-sm text-slate-400">Location</label>
         <input
           className="w-full bg-transparent border border-white/10 p-2 mb-4 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
           value={location}
+          id="location"
           onChange={(e) => setLocation(e.target.value)}
         />
-        <label className="block mb-1 text-sm text-slate-400">Description</label>
+        <label htmlFor="description" className="block mb-1 text-sm text-slate-400">Description</label>
         <textarea
           className="w-full bg-transparent border border-white/10 p-2 mb-4 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
           rows="3"
+          id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
 
        <div className="mb-4 flex flex-col">
-      <label className="text-sm text-slate-400 mb-1">Update Photo</label>
+      <label htmlFor="file" className="text-sm text-slate-400 mb-1">Update Photo</label>
       <input
         type="file"
+        id='file'
         onChange={handleFileChange}
         className="text-sm text-slate-300"
       />
@@ -189,9 +195,10 @@ const handleFileChange = async (e) => {
     </div>
         {category && (
           <div className="mb-4 flex flex-col">
-            <label className="text-sm text-slate-400 mb-1">Category (Detected)</label>
+            <label htmlFor="category" className="text-sm text-slate-400 mb-1">Category (Detected)</label>
             <select
               value={category}
+              id="category"
               onChange={(e) => setCategory(e.target.value)}
               className="p-2 text-sm bg-gray-800 border border-white/10 text-white rounded-md"
             >

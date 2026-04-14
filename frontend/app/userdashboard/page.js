@@ -5,7 +5,7 @@ import { useComplaints } from "../contexts/complaintcontext";
 import ProtectedRoute from "../components/protectedroute";
 
 export default function Dashboard() {
-  const { complaints, loading: complaintsLoading } = useComplaints();
+  const { complaints } = useComplaints();
   const router = useRouter();
  
  

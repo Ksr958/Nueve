@@ -1,12 +1,7 @@
 import axios from "axios";
 
-let BASE_URL;
-
-if (typeof window !== "undefined") {
-  BASE_URL = `http://${window.location.hostname}:8000/api`;
-} else {
-  BASE_URL = "http://localhost:8000/api";
-}
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
 // Main axios instance
 const axiosClient = axios.create({
@@ -14,6 +9,7 @@ const axiosClient = axios.create({
   withCredentials: true,
 });
 
+// Attach access token
 axiosClient.interceptors.request.use((config) => {
   const token = localStorage.getItem("accessToken");
 
@@ -23,7 +19,6 @@ axiosClient.interceptors.request.use((config) => {
 
   return config;
 });
-
 
 let isRefreshing = false;
 let failedQueue = [];
@@ -40,24 +35,29 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
+// Response interceptor
 axiosClient.interceptors.response.use(
   (response) => response,
 
   async (error) => {
     const originalRequest = error.config;
-    
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
+      // If refresh already running → queue request
       if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        })
-          .then((token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            return axiosClient(originalRequest);
-          })
-          .catch((err) => Promise.reject(err));
+        try {
+          const token = await new Promise((resolve, reject) => {
+            failedQueue.push({ resolve, reject });
+          });
+
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+          return axiosClient(originalRequest);
+        } catch (err) {
+          console.log(err)
+          throw err;
+        }
       }
 
       isRefreshing = true;
@@ -68,9 +68,9 @@ axiosClient.interceptors.response.use(
         if (!refreshToken) {
           throw new Error("No refresh token found");
         }
-        
+
         const res = await axios.post(
-          "http://localhost:8000/api/token/refresh/",
+          `${BASE_URL}/token/refresh/`,
           {
             refresh: refreshToken,
           }
@@ -78,10 +78,8 @@ axiosClient.interceptors.response.use(
 
         const newAccessToken = res.data.access;
 
-        
         localStorage.setItem("accessToken", newAccessToken);
 
-       
         axiosClient.defaults.headers.Authorization = `Bearer ${newAccessToken}`;
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
@@ -91,19 +89,18 @@ axiosClient.interceptors.response.use(
       } catch (err) {
         processQueue(err, null);
 
-        
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
 
-        window.location.href = "/";
+        globalThis.location.href = "/";
 
-        return Promise.reject(err);
+        throw err;
       } finally {
         isRefreshing = false;
       }
     }
 
-    return Promise.reject(error);
+    throw error;
   }
 );
 
