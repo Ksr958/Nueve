@@ -62,7 +62,7 @@ export function ComplaintProvider({ children }) {
       rejected: complaints.filter((c) => c.status === "rejected").length,
     };
   }, [complaints]);
-
+  
   const value = useMemo(() => {
     return {
       complaints,

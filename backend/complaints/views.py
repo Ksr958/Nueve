@@ -21,7 +21,7 @@ from rest_framework.parsers import MultiPartParser
 from utils.emails import send_complaint_email
 from django.utils import timezone
 from django.core.mail import send_mail
-import random, os, tempfile
+import secrets, os, tempfile
 from django.contrib.auth.hashers import make_password
 class ApprovedEmployeeCreateView(APIView):
     permission_classes = [IsAdmin]
@@ -265,7 +265,7 @@ class ForgetPassword(APIView):
         except Exception:
             return Response({"error": "User not found"}, status=404)
 
-        otp = str(random.randint(100000, 999999))
+        otp = str(secrets.randbelow(900000) + 100000)
         user.otp = otp
         user.otp_expiry = timezone.now() + timezone.timedelta(minutes=5)
         user.save()

@@ -11,7 +11,7 @@ export default function AdminSidebar() {
     localStorage.removeItem("is_admin")
     router.push('/')
   }
-
+  
   return (
     <div className="w-56 fixed left-0 top-0 h-screen bg-gray-900 text-white px-4 py-5 border-r border-gray-800">
       

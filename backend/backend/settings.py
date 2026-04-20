@@ -88,7 +88,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'complaints',
         'USER': 'complaints_user',
-        'PASSWORD': os.getenv("PASSWORD"),
+        'PASSWORD': os.getenv('PASSWORD'),
         'HOST':'localhost',
         'PORT':'5432'
     }
@@ -178,5 +178,5 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_HOST_USER = 'kadagalasairohith@gmail.com'
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
