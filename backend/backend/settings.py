@@ -26,7 +26,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
-DEBUG = False
+DEBUG=os.getenv('DEBUG')=="True"
+if DEBUG:
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ]
+else:
+    CORS_ALLOWED_ORIGINS = [
+        "https://yourdomain.com",
+    ]
 
 ALLOWED_HOSTS = [
     '*'
@@ -161,12 +170,6 @@ SIMPLE_JWT = {
 
 CORS_ALLOW_ALL_ORIGINS = False
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://10.33.193.17:3000",
-    "http://192.168.29.206:3000"
-    
-]
 
 CORS_ALLOW_CREDENTIALS = True
 AUTH_USER_MODEL="complaints.User"
