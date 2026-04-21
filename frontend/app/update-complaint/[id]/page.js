@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import axiosClient from "../../utils/apis";
 import { useComplaints } from "../../contexts/complaintcontext";
 import ProtectedRoute from "../../components/protectedroute";
+import Image from "next/image";
 export default function UpdateComplaint() {
   const { id } = useParams();
   const router = useRouter();
@@ -141,7 +142,7 @@ const handleFileChange = async (e) => {
         onClick={() => router.push("/userdashboard")}
         className="absolute top-6 left-6 p-2 rounded-full bg-white/10 hover:bg-white/20 transition"
       >
-        <img src="/arrow.png" alt="arrow to go back" className="w-9 h-9" />
+        <Image src="/arrow.png" alt="Back" width={36} height={36} className="w-9 h-9" />
       </button>
 
       <form
@@ -153,12 +154,16 @@ const handleFileChange = async (e) => {
         </h2>
         
         {preview && (
-            <img
-              src={preview.startsWith("http") ? preview : `http://127.0.0.1:8000${preview}`}
-              alt="Complaint"
-              className="w-xl h-80 rounded  mt-2 hover:scale-105 transition-transform"
-            />
-          )}
+  <div className="relative w-full h-80 mt-2">
+    <Image
+      src={preview.startsWith("http") ? preview : `http://127.0.0.1:8000${preview}`}
+      alt="Complaint"
+      fill
+      className="rounded object-cover hover:scale-105 transition-transform"
+      unoptimized
+    />
+  </div>
+)}
 
         <label htmlFor="title" className="block mb-1 text-sm text-slate-400">Title</label>
         <input

@@ -5,7 +5,7 @@ import { useParams} from "next/navigation";
 import axiosClient from "../../../utils/apis";
 import AdminSidebar from "../../../components/AdminSidebarTemp";
 import { useComplaints } from "../../../contexts/complaintcontext";
-
+import Image from "next/image";
 export default function ComplaintDetail() {
   const { fetchComplaints } = useComplaints();
   const { id } = useParams();
@@ -179,10 +179,13 @@ console.log("FINAL IMAGE URL:", imageUrl);
   type="button"
   onClick={() => setShowImage(true)}
 >
-  <img
+  <Image
     src={imageUrl}
     alt="Complaint"
+    width={144}   
+    height={144}
     className="w-36 h-36 object-cover rounded cursor-pointer hover:scale-105 transition-transform"
+    unoptimized
   />
 </button>
 )}
@@ -317,15 +320,19 @@ console.log("FINAL IMAGE URL:", imageUrl);
             ✕
           </button>
 
-          <img
-            src={
-              complaint.photo.startsWith("http")
-                ? complaint.photo
-                : `http://127.0.0.1:8000${complaint.photo}`
-            }
-            alt="Full View"
-            className="max-w-[90%] max-h-[90%] rounded-lg shadow-lg"
-          />
+          <div className="relative w-[90vw] h-[90vh]">
+  <Image
+    src={
+      complaint.photo.startsWith("http")
+        ? complaint.photo
+        : `http://127.0.0.1:8000${complaint.photo}`
+    }
+    alt="Full View"
+    fill
+    className="object-contain rounded-lg"
+    unoptimized
+  />
+</div>
         </div>
       )}
     </div>

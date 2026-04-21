@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useComplaints } from "../contexts/complaintcontext";
 import ProtectedRoute from "../components/protectedroute";
+import Image from "next/image";
 
 export default function Dashboard() {
   const { complaints } = useComplaints();
@@ -35,7 +36,7 @@ export default function Dashboard() {
           onClick={() => router.push("/dashboard")}
           className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition"
         >
-          <img src="/arrow.png" alt="Back" className="w-9 h-9" />
+          <Image src="/arrow.png" alt="Back" width={36} height={36} className="w-9 h-9" />
         </button>
         <h2 className="ml-4 text-2xl font-semibold text-white tracking-tight">
           Complaints Dashboard

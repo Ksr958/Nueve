@@ -5,6 +5,8 @@ import { useRouter, useParams } from "next/navigation";
 import ComplaintTimeline from "../../components/complaintTimeline";
 import { useComplaints } from "../../contexts/complaintcontext";
 import ProtectedRoute from "../../components/protectedroute";
+import Image from "next/image";
+
 
 export default function ComplaintDetails() {
   const router = useRouter();
@@ -24,6 +26,12 @@ export default function ComplaintDetails() {
     </div>
   );
 }
+const finalImageUrl =
+  complaint.photo?.startsWith("http")
+    ? complaint.photo
+    : `${BASE_URL}${complaint.photo}`;
+
+console.log("Final Image URL:", finalImageUrl);
 
   return (
     <ProtectedRoute>
@@ -35,11 +43,8 @@ export default function ComplaintDetails() {
     className="p-0 bg-transparent border-0 cursor-pointer"
     aria-label="Back to Dashboard"
   >
-    <img
-      src="/arrow.png"
-      alt="Back to Dashboard"
-      className="h-10 w-10"
-    />
+    <Image src="/arrow.png" alt="Back" width={36} height={36} className="w-9 h-9" />
+
   </button>
       </div>
       <div className="max-w-2xl mx-auto space-y-5 ">
@@ -56,9 +61,10 @@ export default function ComplaintDetails() {
         <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-5 space-y-3">
           
           <div className="flex items-center justify-between gap-2">
-            <div><img 
+            <div><Image
               src="/calendar.png" 
-              alt="Created Date" 
+              alt="Created Date"
+              width={36} height={36} 
               className="h-4 w-4 inline-block mr-1"
             />  
             <span className="text-white text-sm ">Created</span>
@@ -70,7 +76,7 @@ export default function ComplaintDetails() {
 
           
           <div className="flex gap-2">
-            <img src="/gps (1).png" alt="Location Icon" className="w-4 h-4" />
+            <Image src="/gps (1).png" alt="Location Icon" width={36} height={36} className="w-4 h-4" />
             <p className="text-white text-sm">{complaint.location || "No location provided"}</p>
           </div>
           
@@ -147,21 +153,17 @@ export default function ComplaintDetails() {
           </div>
         )}
       </div>
-      <div className="ml-100 w-2xl">
-      {console.log("Photo URL:", complaint.photo)}
-
       {complaint.photo && (
-      <img
-        src={
-  complaint.photo?.startsWith("http")
-    ? complaint.photo
-    : `${BASE_URL}${complaint.photo}`
-}
-        alt={complaint.title}
-        className=" w-full h-[500px] rounded-md mt-2"
-      />
-    )}
-    </div>
+  <div className="relative ml-100 w-2xl h-[500px] mt-2">
+  <Image
+    src={finalImageUrl}
+    alt={complaint.title}
+    fill
+    className="rounded-md object-cover"
+    unoptimized
+  />
+</div>
+)}
     </div>
     </ProtectedRoute>
   );
