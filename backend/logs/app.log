@@ -68,3 +68,7 @@ smtplib.SMTPServerDisconnected: please run connect() first
 2026-04-29 15:16:04,619 [INFO] httpx: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
 2026-04-29 15:16:09,295 [INFO] utils.emails: Email sent successfully to gayathri@gmail.com
 2026-04-29 15:33:36,515 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-04-29 15:41:23,971 [WARNING] django.request: Forbidden: /api/admin/complaints/137/
+2026-04-29 15:41:24,020 [WARNING] django.request: Forbidden: /api/admin/complaints/137/
+2026-04-29 15:41:35,045 [WARNING] django.request: Forbidden: /api/admin/complaints/137/
+2026-04-29 15:41:35,090 [WARNING] django.request: Forbidden: /api/admin/complaints/137/

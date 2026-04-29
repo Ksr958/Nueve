@@ -33,6 +33,16 @@ jobs:
         working-directory: frontend
         run: npm test -- --runInBand
 
+      - name: Normalize LCOV paths for Sonar
+        shell: pwsh
+        run: |
+          $lcov = "frontend/coverage/lcov.info"
+          (Get-Content $lcov) |
+            ForEach-Object {
+              $_.Replace("SF:app\", "SF:frontend/app/").Replace("\", "/")
+            } |
+            Set-Content $lcov
+
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
