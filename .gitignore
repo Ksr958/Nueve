@@ -1,8 +1,11 @@
 # Next.js
 frontend/.next
+frontend/coverage
 node_modules
 
 # Python
+.github/
+sonar-project-properties
 env/
 __pycache__/
 *.pyc

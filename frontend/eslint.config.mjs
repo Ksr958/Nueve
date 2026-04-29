@@ -14,8 +14,10 @@ const eslintConfig = defineConfig([
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
+    "coverage/**",
     "out/**",
     "build/**",
+    "jest.config.js",
     "next-env.d.ts",
   ]),
 ]);

@@ -1,14 +1,14 @@
 import axios from "axios";
 
-function resolveApiBaseUrl() {
+export function resolveApiBaseUrl() {
   if (process.env.NEXT_PUBLIC_API_BASE_URL) {
     return process.env.NEXT_PUBLIC_API_BASE_URL;
   }
 
   if (globalThis.window) {
-  const { hostname } = globalThis.window.location;
-  return `http://${hostname}:8000/api`;
-}
+    const { hostname } = globalThis.window.location;
+    return `http://${hostname}:8000/api`;
+  }
 
   return "http://localhost:8000/api";
 }
@@ -22,7 +22,6 @@ const apiOrigin = process.env.NEXT_PUBLIC_API_ORIGIN || derivedApiOrigin;
 export function getMediaUrl(path) {
   if (!path) return "";
   if (path.startsWith("http")) return path;
-  if (!apiOrigin) return path;
   return `${apiOrigin}${path}`;
 }
 
@@ -34,7 +33,11 @@ const axiosClient = axios.create({
 axiosClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && globalThis.window?.location.pathname !== "/") {
+    if (
+      error.response?.status === 401 &&
+      globalThis.window &&
+      globalThis.window.location.pathname !== "/"
+    ) {
       globalThis.window.location.href = "/";
     }
     return Promise.reject(error);
