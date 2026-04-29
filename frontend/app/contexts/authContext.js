@@ -1,50 +1,82 @@
 "use client";
-import { createContext, useContext, useState, useMemo, useCallback } from "react";
+
+import {
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  useCallback,
+  useEffect,
+} from "react";
 import PropTypes from "prop-types";
 
-const UserContext = createContext();
-
-function getInitialAuthState() {
-  if (globalThis.window == "undefined") {
-    return { user: null, loading: true };
-  }
-
-  const token = localStorage.getItem("accessToken");
-  if (!token) {
-    return { user: null, loading: false };
-  }
-
-  const storedUser = localStorage.getItem("username");
-  const storedIsAdmin = localStorage.getItem("is_admin") === "true";
-
-  return {
-    user: storedUser ? { username: storedUser, is_admin: storedIsAdmin } : null,
-    loading: false,
-  };
-}
+const UserContext = createContext(null);
 
 export function UserProvider({ children }) {
-  const [{ user, loading }, setAuthState] = useState(getInitialAuthState);
+  const [auth, setAuth] = useState({
+    user: null,
+    loading: true,
+  });
 
-  const login = useCallback((userName, accessToken, refreshToken, is_admin) => {
-    localStorage.setItem("username", userName);
-    localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("refreshToken", refreshToken);
-    localStorage.setItem("is_admin", is_admin);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
 
-    setAuthState({ user: { username: userName, is_admin }, loading: false });
+    const token = localStorage.getItem("accessToken");
+
+    // ✅ compute everything first
+    let newAuthState = {
+      user: null,
+      loading: false,
+    };
+
+    if (token) {
+      const storedUser = localStorage.getItem("username");
+      const storedIsAdmin = localStorage.getItem("is_admin") === "true";
+
+      newAuthState.user = storedUser
+        ? { username: storedUser, is_admin: storedIsAdmin }
+        : null;
+    }
+
+    // ✅ single setState (lint-safe)
+    setAuth(newAuthState);
   }, []);
+
+  const login = useCallback(
+    (userName, accessToken, refreshToken, is_admin) => {
+      localStorage.setItem("username", userName);
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+      localStorage.setItem("is_admin", is_admin);
+
+      setAuth({
+        user: { username: userName, is_admin },
+        loading: false,
+      });
+    },
+    []
+  );
 
   const logout = useCallback(() => {
-    setAuthState({ user: null, loading: false });
     localStorage.clear();
+    setAuth({ user: null, loading: false });
   }, []);
 
-  const value = useMemo(() => {
-    return { user, login, logout, loading };
-  }, [user, login, logout, loading]);
+  const value = useMemo(
+    () => ({
+      user: auth.user,
+      loading: auth.loading,
+      login,
+      logout,
+    }),
+    [auth.user, auth.loading, login, logout]
+  );
 
-  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
+  return (
+    <UserContext.Provider value={value}>
+      {children}
+    </UserContext.Provider>
+  );
 }
 
 export function useUser() {
