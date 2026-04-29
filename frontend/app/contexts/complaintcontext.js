@@ -7,15 +7,12 @@ import PropTypes from "prop-types";
 const ComplaintContext = createContext();
 
 export function ComplaintProvider({ children }) {
-  const { user } = useUser();
+  const { user, loading: userLoading } = useUser();
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchComplaints = useCallback(async () => {
-    if (!user) return;
-
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
+    if (!user) {
       setComplaints([]);
       setLoading(false);
       return;
@@ -36,8 +33,7 @@ export function ComplaintProvider({ children }) {
       const data = res.data.results || res.data || [];
 
       setComplaints(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error("Failed to fetch complaints:", err);
+    } catch {
       setComplaints([]);
     } finally {
       setLoading(false);
@@ -49,9 +45,16 @@ export function ComplaintProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    if (user) fetchComplaints();
-    else clearComplaints();
-  }, [user, fetchComplaints, clearComplaints]);
+    if (userLoading) return;
+
+    if (user) {
+      fetchComplaints();
+      return;
+    }
+
+    clearComplaints();
+    setLoading(false);
+  }, [user, userLoading, fetchComplaints, clearComplaints]);
 
   const counts = useMemo(() => {
     return {

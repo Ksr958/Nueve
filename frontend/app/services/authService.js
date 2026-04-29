@@ -11,10 +11,7 @@ export async function loginUser(usernameOrEmail, password) {
     });
     return res.data;
   } catch (err) {
-    console.error("Login failed:", err.response?.data || err.message);
-    throw new Error(
-      err.response?.data?.detail || "Login failed. Check username/password."
-    );
+    throw new Error(err.response?.data?.detail || "Login failed. Check username/password.");
   }
 }
 export async function registerUser(username, email, password) {

@@ -14,8 +14,7 @@ export default function ApproveEmployeePage() {
     try {
       const res = await axiosClient.get("/approved-employees/");
       setEmployees(res.data);
-    } catch (err) {
-      console.error(err);
+    } catch {
     }
   };
   useEffect(() => {

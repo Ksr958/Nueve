@@ -142,6 +142,7 @@ export default function AuthForm({ mode, setMode, router }) {
 
     try {
       const res = await axiosClient.post("/reset-password/", {
+        email: stepEmail,
         new_password: password,
         confirm_password: confirmPassword,
       });
@@ -166,10 +167,10 @@ export default function AuthForm({ mode, setMode, router }) {
 
     try {
       const data = await loginUser(username, password);
-      await login(data.username, data.access, data.refresh, data.is_admin);
+      login(data.username, data.is_admin);
       router.push(data.is_admin ? "/admin/dashboard" : "/dashboard");
     } catch (err) {
-      setError(err.response?.data?.error || "Login failed");
+      setError(err.message || "Login failed");
     } finally {
       setLoading(false);
     }

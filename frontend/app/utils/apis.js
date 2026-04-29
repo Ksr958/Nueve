@@ -1,105 +1,43 @@
 import axios from "axios";
 
-const BASE_URL = "http://127.0.0.1:8000/api";
-console.log("BASE_URL:", BASE_URL);
-// Main axios instance
+function resolveApiBaseUrl() {
+  if (process.env.NEXT_PUBLIC_API_BASE_URL) {
+    return process.env.NEXT_PUBLIC_API_BASE_URL;
+  }
+
+  if (globalThis.window != "undefined") {
+  const { hostname } = globalThis.window.location;
+  return `http://${hostname}:8000/api`;
+}
+
+  return "http://localhost:8000/api";
+}
+
+const apiBaseUrl = resolveApiBaseUrl();
+const derivedApiOrigin = apiBaseUrl.endsWith("/api")
+  ? apiBaseUrl.slice(0, -4)
+  : apiBaseUrl;
+const apiOrigin = process.env.NEXT_PUBLIC_API_ORIGIN || derivedApiOrigin;
+
+export function getMediaUrl(path) {
+  if (!path) return "";
+  if (path.startsWith("http")) return path;
+  if (!apiOrigin) return path;
+  return `${apiOrigin}${path}`;
+}
+
 const axiosClient = axios.create({
-  baseURL: BASE_URL,
+  baseURL: apiBaseUrl,
   withCredentials: true,
 });
 
-// Attach access token
-axiosClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("accessToken");
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-
-  return config;
-});
-
-let isRefreshing = false;
-let failedQueue = [];
-
-const processQueue = (error, token = null) => {
-  failedQueue.forEach((prom) => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token);
-    }
-  });
-
-  failedQueue = [];
-};
-
-// Response interceptor
 axiosClient.interceptors.response.use(
   (response) => response,
-
-  async (error) => {
-    const originalRequest = error.config;
-
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      // If refresh already running → queue request
-      if (isRefreshing) {
-        try {
-          const token = await new Promise((resolve, reject) => {
-            failedQueue.push({ resolve, reject });
-          });
-
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          return axiosClient(originalRequest);
-        } catch (err) {
-          console.log(err)
-          throw err;
-        }
-      }
-
-      isRefreshing = true;
-
-      try {
-        const refreshToken = localStorage.getItem("refreshToken");
-
-        if (!refreshToken) {
-          throw new Error("No refresh token found");
-        }
-
-        const res = await axios.post(
-          `${BASE_URL}/token/refresh/`,
-          {
-            refresh: refreshToken,
-          }
-        );
-
-        const newAccessToken = res.data.access;
-
-        localStorage.setItem("accessToken", newAccessToken);
-
-        axiosClient.defaults.headers.Authorization = `Bearer ${newAccessToken}`;
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-
-        processQueue(null, newAccessToken);
-
-        return axiosClient(originalRequest);
-      } catch (err) {
-        processQueue(err, null);
-
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-
-        globalThis.location.href = "/";
-
-        throw err;
-      } finally {
-        isRefreshing = false;
-      }
+  (error) => {
+    if (error.response?.status === 401 && globalThis.window?.location.pathname !== "/") {
+      globalThis.window.location.href = "/";
     }
-
-    throw error;
+    return Promise.reject(error);
   }
 );
 

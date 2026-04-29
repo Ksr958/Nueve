@@ -1,15 +1,19 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useComplaints } from "../contexts/complaintcontext";
 import ProtectedRoute from "../components/protectedroute";
 import Image from "next/image";
 
 export default function Dashboard() {
-  const { complaints } = useComplaints();
+  const { complaints, fetchComplaints, loading } = useComplaints();
   const router = useRouter();
- 
- 
+
+  useEffect(() => {
+    fetchComplaints();
+  }, [fetchComplaints]);
+
   const formatCategory = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
   const getStatusStyle = (status) => {
@@ -58,6 +62,20 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
+              {loading && (
+                <tr>
+                  <td colSpan="5" className="px-5 py-10 text-center text-slate-300">
+                    Loading complaints...
+                  </td>
+                </tr>
+              )}
+              {!loading && complaints.length === 0 && (
+                <tr>
+                  <td colSpan="5" className="px-5 py-10 text-center text-slate-400">
+                    No complaints found for this account yet.
+                  </td>
+                </tr>
+              )}
               {[...complaints]
                 .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
                 .map((complaint) => {

@@ -12,13 +12,13 @@ from .views import (
     ComplaintDetectView,
     ApprovedEmployeeCreateView,
     ForgetPassword,
+    LogoutView,
     ResetPassword,
+    SessionView,
     VerifyOTP,
     AdminComplaintListView,
     UserComplaintListCreateView,
     DeleteComplaintView,
-    #find_technician,
-    #nearby_shops
 )
 from . import views
 
@@ -26,6 +26,8 @@ from . import views
 urlpatterns = [
     path("api/register/", Registrationview.as_view(), name="register"),
     path("api/login/", LoginView.as_view(), name="login"),
+    path("api/session/", SessionView.as_view(), name="session"),
+    path("api/logout/", LogoutView.as_view(), name="logout"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="refresh"),
     path("api/admin/complaints/", AdminComplaintListView.as_view(), name="admin-complaint-list"),
     path("api/admin/complaints/<int:pk>/", AdminComplaintRetrieveUpdateDestroyAPIView.as_view(), name="admin-complaint-detail"),

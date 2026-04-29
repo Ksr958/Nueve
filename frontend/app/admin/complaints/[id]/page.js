@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useParams} from "next/navigation";
-import axiosClient from "../../../utils/apis";
+import axiosClient, { getMediaUrl } from "../../../utils/apis";
 import AdminSidebar from "../../../components/AdminSidebarTemp";
 import { useComplaints } from "../../../contexts/complaintcontext";
 import Image from "next/image";
@@ -36,8 +36,7 @@ export default function ComplaintDetail() {
         if (res.data.rejection_reason) {
           setRejectReason(res.data.rejection_reason);
         }
-      } catch (err) {
-        console.log("Error fetching complaint", err);
+      } catch {
         setMessage({ type: "error", text: "Failed to load complaint." });
       }
     };
@@ -106,10 +105,6 @@ export default function ComplaintDetail() {
         showMessage("success", "Complaint updated successfully.");
       }
     } catch (err) {
-      console.error("FULL ERROR:", err);
-      console.error("RESPONSE:", err.response);
-      console.error("DATA:", err.response?.data);
-
       setMessage({
         type: "error",
         text: err.response?.data?.detail || "Update failed. Please try again.",
@@ -123,12 +118,7 @@ export default function ComplaintDetail() {
     return <p className="text-white p-10">Loading...</p>;
   }
 
-  const imageUrl =
-  complaint.photo?.startsWith("http")
-    ? complaint.photo
-    : `http://127.0.0.1:8000${complaint.photo}`;
-
-console.log("FINAL IMAGE URL:", imageUrl);
+  const imageUrl = getMediaUrl(complaint.photo);
   return (
     <div className="flex min-h-screen bg-gray-900 text-white">
       <AdminSidebar />
@@ -323,9 +313,7 @@ console.log("FINAL IMAGE URL:", imageUrl);
           <div className="relative w-[90vw] h-[90vh]">
   <Image
     src={
-      complaint.photo.startsWith("http")
-        ? complaint.photo
-        : `http://127.0.0.1:8000${complaint.photo}`
+      getMediaUrl(complaint.photo)
     }
     alt="Full View"
     fill

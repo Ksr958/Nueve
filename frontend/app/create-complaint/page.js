@@ -50,8 +50,7 @@ useEffect(() => {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setCategory(res.data.category || "Other");
-    } catch (err) {
-      console.error(err);
+    } catch {
       setMessage({ type: "error", text: "Error detecting category" });
     } finally {
       setDetecting(false);
@@ -104,9 +103,7 @@ useEffect(() => {
       setLocation("");
       setCategory("");
       await fetchComplaints();
-    } catch (error) {
-      console.error(error);
-      console.error(error.data)
+    } catch {
       setMessage({ type: "error", text: "Failed to submit complaint" });
     } finally {
       setLoading(false);

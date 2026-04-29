@@ -10,6 +10,8 @@ import {
 } from "react";
 import PropTypes from "prop-types";
 
+import axiosClient from "../utils/apis";
+
 const UserContext = createContext(null);
 
 export function UserProvider({ children }) {
@@ -18,48 +20,43 @@ export function UserProvider({ children }) {
     loading: true,
   });
 
-  useEffect(() => {
-    if (globalThis.window === undefined) return;
-
-    const token = localStorage.getItem("accessToken");
-
-    // ✅ compute everything first
-    let newAuthState = {
-      user: null,
-      loading: false,
-    };
-
-    if (token) {
-      const storedUser = localStorage.getItem("username");
-      const storedIsAdmin = localStorage.getItem("is_admin") === "true";
-
-      newAuthState.user = storedUser
-        ? { username: storedUser, is_admin: storedIsAdmin }
-        : null;
-    }
-
-    // ✅ single setState (lint-safe)
-    setAuth(newAuthState);
-  }, []);
-
-  const login = useCallback(
-    (userName, accessToken, refreshToken, is_admin) => {
-      localStorage.setItem("username", userName);
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-      localStorage.setItem("is_admin", is_admin);
-
+  const loadSession = useCallback(async () => {
+    try {
+      const response = await axiosClient.get("/session/");
       setAuth({
-        user: { username: userName, is_admin },
+        user: {
+          username: response.data.username,
+          is_admin: response.data.is_admin,
+        },
         loading: false,
       });
-    },
-    []
-  );
+    } catch {
+      setAuth({
+        user: null,
+        loading: false,
+      });
+    }
+  }, []);
 
-  const logout = useCallback(() => {
-    localStorage.clear();
-    setAuth({ user: null, loading: false });
+  useEffect(() => {
+    loadSession();
+  }, [loadSession]);
+
+  const login = useCallback((userName, isAdmin) => {
+    setAuth({
+      user: { username: userName, is_admin: isAdmin },
+      loading: false,
+    });
+  }, []);
+
+  const logout = useCallback(async () => {
+    try {
+      await axiosClient.post("/logout/");
+    } catch {
+      // Ignore logout API failures and still clear local auth state.
+    } finally {
+      setAuth({ user: null, loading: false });
+    }
   }, []);
 
   const value = useMemo(
@@ -68,15 +65,12 @@ export function UserProvider({ children }) {
       loading: auth.loading,
       login,
       logout,
+      reloadSession: loadSession,
     }),
-    [auth.user, auth.loading, login, logout]
+    [auth.user, auth.loading, login, logout, loadSession]
   );
 
-  return (
-    <UserContext.Provider value={value}>
-      {children}
-    </UserContext.Provider>
-  );
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }
 
 export function useUser() {

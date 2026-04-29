@@ -6,13 +6,13 @@ import ComplaintTimeline from "../../components/complaintTimeline";
 import { useComplaints } from "../../contexts/complaintcontext";
 import ProtectedRoute from "../../components/protectedroute";
 import Image from "next/image";
+import { getMediaUrl } from "../../utils/apis";
 
 
 export default function ComplaintDetails() {
   const router = useRouter();
   const { id } = useParams();
   const { complaints } = useComplaints();
-  const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
   
   const complaint = useMemo(
     () => complaints.find((c) => c.id.toString() === id),
@@ -27,11 +27,7 @@ export default function ComplaintDetails() {
   );
 }
 const finalImageUrl =
-  complaint.photo?.startsWith("http")
-    ? complaint.photo
-    : `${BASE_URL}${complaint.photo}`;
-
-console.log("Final Image URL:", finalImageUrl);
+  getMediaUrl(complaint.photo);
 
   return (
     <ProtectedRoute>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import axiosClient from "../../utils/apis";
+import axiosClient, { getMediaUrl } from "../../utils/apis";
 import { useComplaints } from "../../contexts/complaintcontext";
 import ProtectedRoute from "../../components/protectedroute";
 import Image from "next/image";
@@ -30,7 +30,6 @@ export default function UpdateComplaint() {
     setPreview(complaint.photo);
     setLocation(complaint.location);
     setCategory(complaint.category || "");
-    console.log("yes here")
   } else {
     
     fetchComplaints();
@@ -51,8 +50,7 @@ const handleFileChange = async (e) => {
       headers: { "Content-Type": "multipart/form-data" },
     });
     setCategory(res.data.category || "Other"); // update category automatically
-  } catch (err) {
-    console.error(err);
+  } catch {
     alert("Error detecting category");
   } finally {
     setDetecting(false);
@@ -82,8 +80,7 @@ const handleFileChange = async (e) => {
         setShowSuccess(false);
         router.push("/userdashboard");
       }, 3000);
-    } catch (err) {
-      console.error(err);
+    } catch {
     } finally {
       setLoading(false);
     }
@@ -156,7 +153,7 @@ const handleFileChange = async (e) => {
         {preview && (
   <div className="relative w-full h-80 mt-2">
     <Image
-      src={preview.startsWith("http") ? preview : `http://127.0.0.1:8000${preview}`}
+      src={getMediaUrl(preview)}
       alt="Complaint"
       fill
       className="rounded object-cover hover:scale-105 transition-transform"

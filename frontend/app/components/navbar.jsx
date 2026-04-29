@@ -22,8 +22,8 @@ export default function Navbar() {
 
         <button
           onClick={() => {
-            logout();          // clears storage + triggers context updates
-            router.push("/");  // redirect to login
+            logout();
+            router.push("/");
           }}
           className="flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-rose-500 transition-colors group"
         >
