@@ -48,16 +48,6 @@ export default function AdminSidebar() {
       Approve Employee
     </button>
   </li>
-
-  <li>
-    <button
-      onClick={() => router.push("/admin/findtechnician")}
-      className="w-full text-left cursor-pointer px-3 py-2 rounded-md hover:bg-gray-800 hover:text-blue-400 transition"
-    >
-      Find Tech
-    </button>
-  </li>
-
   <li>
     <button
       onClick={handleLogout}

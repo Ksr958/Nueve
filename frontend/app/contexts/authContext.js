@@ -19,7 +19,7 @@ export function UserProvider({ children }) {
   });
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof globalThis.window === "undefined") return;
 
     const token = localStorage.getItem("accessToken");
 
