@@ -2,11 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import PropTypes from "prop-types";
+import { COMPLAINT_STATUS } from "../constants/status";
 export default function HighPriorityCard({ complaints }) {
   const router = useRouter();
   
   const openComplaints = complaints.filter(
-    (c) => c.status !== "resolved" && c.status !== "rejected"
+    (c) => c.status !== COMPLAINT_STATUS.RESOLVED && c.status !== COMPLAINT_STATUS.REJECTED
   );
   
   const oldestComplaints = openComplaints

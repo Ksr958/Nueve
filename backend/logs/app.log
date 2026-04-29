@@ -72,3 +72,18 @@ smtplib.SMTPServerDisconnected: please run connect() first
 2026-04-29 15:41:24,020 [WARNING] django.request: Forbidden: /api/admin/complaints/137/
 2026-04-29 15:41:35,045 [WARNING] django.request: Forbidden: /api/admin/complaints/137/
 2026-04-29 15:41:35,090 [WARNING] django.request: Forbidden: /api/admin/complaints/137/
+2026-04-29 18:40:25,466 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-04-29 18:41:18,248 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-04-29 18:41:41,215 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-04-29 18:42:17,277 [INFO] django.utils.autoreload: C:\Users\sairohith\Desktop\final_project\Nueve\backend\backend\settings.py changed, reloading.
+2026-04-29 18:42:18,859 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-04-29 18:42:37,602 [INFO] django.utils.autoreload: C:\Users\sairohith\Desktop\final_project\Nueve\backend\backend\settings.py changed, reloading.
+2026-04-29 18:42:39,249 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-04-29 18:45:28,022 [INFO] django.utils.autoreload: C:\Users\sairohith\Desktop\final_project\Nueve\backend\backend\settings.py changed, reloading.
+2026-04-29 19:08:01,496 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-04-29 19:12:06,453 [INFO] django.utils.autoreload: C:\Users\sairohith\Desktop\final_project\Nueve\backend\backend\settings.py changed, reloading.
+2026-04-29 19:12:08,665 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-04-29 19:14:49,315 [INFO] django.utils.autoreload: C:\Users\sairohith\Desktop\final_project\Nueve\backend\backend\settings.py changed, reloading.
+2026-04-29 19:14:50,886 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-04-29 19:36:48,812 [INFO] httpx: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-29 19:36:55,039 [INFO] utils.emails: Email sent successfully to gayathri@gmail.com

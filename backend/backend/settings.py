@@ -99,7 +99,7 @@ DATABASES = {
         'USER': 'complaints_user',
         'PASSWORD': os.getenv('PASSWORD'),
         'HOST':'localhost',
-        'PORT':'5432'
+        "PORT": os.getenv("DB_PORT", 5432),
     }
 }
 
@@ -176,12 +176,16 @@ AUTH_USER_MODEL="complaints.User"
 MEDIA_URL = '/media/'  # URL to access uploaded files
 MEDIA_ROOT = BASE_DIR / 'media' 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = os.getenv('EMAIL_HOST')
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+CORS_ALLOWED_ORIGINS = os.getenv(
+    "CORS_ALLOWED_ORIGINS",
+    "http://localhost:3000,http://127.0.0.1:3000"
+).split(",")
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,

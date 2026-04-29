@@ -5,12 +5,12 @@ import { useComplaints } from "../../contexts/complaintcontext";
 import AdminSidebar from "../../components/AdminSidebarTemp";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { COMPLAINT_STATUS } from "../../constants/status";
 
 export default function AdminComplaints() {
   const { complaints } = useComplaints();
   const router = useRouter();
 
-  // Filters state
   const [filters, setFilters] = useState({
     date: "",
     user: "",
@@ -19,17 +19,14 @@ export default function AdminComplaints() {
     location: "",
   });
 
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
 
-  // ✅ helper to update filters + reset page (no useEffect needed)
   const updateFilter = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
     setCurrentPage(1);
   };
 
-  // ✅ Memoized filtering
   const filteredComplaints = useMemo(() => {
     return complaints.filter((c) => {
       const dateObj = new Date(c.created_at);
@@ -71,7 +68,6 @@ export default function AdminComplaints() {
     });
   }, [complaints, filters]);
 
-  // Pagination logic
   const totalPages = Math.ceil(filteredComplaints.length / itemsPerPage);
 
   const paginatedComplaints = useMemo(() => {
@@ -84,20 +80,19 @@ export default function AdminComplaints() {
   }, [filteredComplaints, currentPage]);
 
   const getStatusClass = (status) => {
-  switch (status) {
-    case "resolved":
-      return "bg-green-500/20 text-green-400";
-    case "rejected":
-      return "bg-red-500/20 text-red-400";
-    default:
-      return "bg-yellow-500/20 text-yellow-400";
-  }
-};
+    switch (status) {
+      case COMPLAINT_STATUS.RESOLVED:
+        return "bg-green-500/20 text-green-400";
+      case COMPLAINT_STATUS.REJECTED:
+        return "bg-red-500/20 text-red-400";
+      default:
+        return "bg-yellow-500/20 text-yellow-400";
+    }
+  };
 
   return (
     <div className="flex bg-[#020617] min-h-screen">
       <AdminSidebar />
-
       <div className="ml-56 w-full flex flex-col p-5">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-semibold text-white">
@@ -109,7 +104,7 @@ export default function AdminComplaints() {
         </div>
 
         <div className="sticky top-0 z-10 bg-[#020617] p-3 mb-4 rounded-xl border border-slate-800 grid grid-cols-2 md:grid-cols-6 gap-3 shadow-md">
-          
+
           <div className="relative inline-block">
             <input
               type="date"
@@ -155,10 +150,10 @@ export default function AdminComplaints() {
             className="p-2 text-sm bg-slate-900 border border-slate-700 text-white rounded-md"
           >
             <option value="">All Status</option>
-            <option value="submitted">Submitted</option>
-            <option value="verified">In Progress</option>
-            <option value="resolved">Resolved</option>
-            <option value="rejected">Rejected</option>
+            <option value={COMPLAINT_STATUS.SUBMITTED}>Submitted</option>
+            <option value={COMPLAINT_STATUS.VERIFIED}>In Progress</option>
+            <option value={COMPLAINT_STATUS.RESOLVED}>Resolved</option>
+            <option value={COMPLAINT_STATUS.REJECTED}>Rejected</option>
           </select>
 
           <input
@@ -187,6 +182,7 @@ export default function AdminComplaints() {
             <tbody>
               {paginatedComplaints.map((c) => {
                 const dateObj = new Date(c.created_at);
+
                 return (
                   <tr
                     key={c.id}
@@ -195,32 +191,36 @@ export default function AdminComplaints() {
                     <td className="px-4 py-3 text-white">
                       {dateObj.toLocaleDateString()}
                     </td>
+
                     <td className="px-4 py-3 text-slate-400">
                       {dateObj.toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
                       })}
                     </td>
+
                     <td className="px-4 py-3 text-white">
                       {c.user?.username}
                     </td>
+
                     <td className="px-4 py-3 text-white">
                       {c.category || "General"}
                     </td>
+
                     <td className="px-4 py-3 text-white">
                       {c.location || "N/A"}
                     </td>
+
                     <td className="px-4 py-3">
                       <span className={`px-2 py-1 text-xs rounded-full ${getStatusClass(c.status)}`}>
                         {c.status}
                       </span>
                     </td>
+
                     <td className="px-4 py-3">
                       <button
                         className="px-3 py-1 text-xs text-white rounded-md bg-blue-600 hover:bg-blue-500"
-                        onClick={() =>
-                          router.push(`./complaints/${c.id}`)
-                        }
+                        onClick={() => router.push(`./complaints/${c.id}`)}
                       >
                         Update
                       </button>
@@ -244,24 +244,24 @@ export default function AdminComplaints() {
           </button>
 
           <div className="flex gap-2">
-  {Array.from({ length: totalPages }).map((_, i) => {
-    const pageNumber = i + 1;
+            {Array.from({ length: totalPages }).map((_, i) => {
+              const pageNumber = i + 1;
 
-    return (
-      <button
-        key={pageNumber}
-        onClick={() => setCurrentPage(pageNumber)}
-        className={`px-3 py-1 rounded-md ${
-          currentPage === pageNumber
-            ? "bg-blue-600"
-            : "bg-slate-800"
-        }`}
-      >
-        {pageNumber}
-      </button>
-    );
-  })}
-</div>
+              return (
+                <button
+                  key={pageNumber}
+                  onClick={() => setCurrentPage(pageNumber)}
+                  className={`px-3 py-1 rounded-md ${
+                    currentPage === pageNumber
+                      ? "bg-blue-600"
+                      : "bg-slate-800"
+                  }`}
+                >
+                  {pageNumber}
+                </button>
+              );
+            })}
+          </div>
 
           <button
             onClick={() =>

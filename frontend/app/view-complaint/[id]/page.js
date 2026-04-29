@@ -7,6 +7,7 @@ import { useComplaints } from "../../contexts/complaintcontext";
 import ProtectedRoute from "../../components/protectedroute";
 import Image from "next/image";
 import { getMediaUrl } from "../../utils/apis";
+import { COMPLAINT_STATUS } from "../../constants/status";
 
 
 export default function ComplaintDetails() {
@@ -130,7 +131,7 @@ const finalImageUrl =
 )}
 
         
-        {complaint.status === "resolved" && complaint.solution && (
+        {complaint.status === COMPLAINT_STATUS.RESOLVED && complaint.solution && (
           <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4">
             <p className="text-green-400 text-sm font-semibold mb-1">Admin Solution</p>
             <p className="text-white text-sm">{complaint.solution.description}</p>
@@ -141,7 +142,7 @@ const finalImageUrl =
         )}
 
       
-        {complaint.status === "rejected" && complaint.rejection_reason && (
+        {complaint.status === COMPLAINT_STATUS.REJECTED && complaint.rejection_reason && (
           <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
             <p className="text-red-400 text-sm">
               <b>Rejection Reason:</b> {complaint.rejection_reason}

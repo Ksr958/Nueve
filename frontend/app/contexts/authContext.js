@@ -52,9 +52,8 @@ export function UserProvider({ children }) {
   const logout = useCallback(async () => {
     try {
       await axiosClient.post("/logout/");
-    } catch {
-      // Ignore logout API failures and still clear local auth state.
-    } finally {
+    } 
+     finally {
       setAuth({ user: null, loading: false });
     }
   }, []);

@@ -3,6 +3,7 @@ import { createContext, useContext, useState, useEffect, useMemo, useCallback } 
 import axiosClient from "../utils/apis";
 import { useUser } from "./authContext";
 import PropTypes from "prop-types";
+import { COMPLAINT_STATUS } from "../constants/status";
 
 const ComplaintContext = createContext();
 
@@ -59,10 +60,10 @@ export function ComplaintProvider({ children }) {
   const counts = useMemo(() => {
     return {
       total: complaints.length,
-      pending: complaints.filter((c) => c.status === "submitted").length,
-      resolved: complaints.filter((c) => c.status === "resolved").length,
-      inprogress: complaints.filter((c) => c.status === "verified").length,
-      rejected: complaints.filter((c) => c.status === "rejected").length,
+      pending: complaints.filter((c) => c.status === COMPLAINT_STATUS.SUBMITTED).length,
+      resolved: complaints.filter((c) => c.status === COMPLAINT_STATUS.RESOLVED).length,
+      inprogress: complaints.filter((c) => c.status === COMPLAINT_STATUS.VERIFIED).length,
+      rejected: complaints.filter((c) => c.status === COMPLAINT_STATUS.REJECTED).length,
     };
   }, [complaints]);
   

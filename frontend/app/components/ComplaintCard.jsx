@@ -1,11 +1,12 @@
 import { useRouter } from "next/navigation";
 import PropTypes from "prop-types";
+import { COMPLAINT_STATUS } from "../constants/status";
 
 export default function ComplaintCard({ complaint, onDelete, onEdit }) {
 
   const router = useRouter();
 
-  const canEdit = complaint.status === "submitted";
+  const canEdit = complaint.status === COMPLAINT_STATUS.SUBMITTED;
 
   const statusStyles = {
     submitted: "bg-blue-100 text-blue-700",

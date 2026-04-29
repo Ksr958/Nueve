@@ -6,6 +6,7 @@ import Navbar from "../components/navbar";
 import axiosClient from "../utils/apis";
 import { useComplaints } from "../contexts/complaintcontext";
 import ProtectedRoute from '../components/protectedroute';
+import { API_STATUS } from "../constants/apistatus";
 
 export default function CreateComplaint() {
   const router = useRouter();
@@ -24,7 +25,7 @@ export default function CreateComplaint() {
 
   
 useEffect(() => {
-  if (message.type === "success") {
+  if (message.type === API_STATUS.SUCCESS) {
     const timer = setTimeout(() => setMessage({ type: "", text: "" }), 5000);
     return () => clearTimeout(timer);
   }
@@ -127,7 +128,7 @@ useEffect(() => {
         {/* MESSAGE */}
         {message.text && (
           <div className={`mb-4 p-2 rounded text-sm border
-            ${message.type === "success"
+            ${message.type === API_STATUS.SUCCESS
               ? "bg-green-500/10 border-green-500 text-green-400"
               : "bg-red-500/10 border-red-500 text-red-400"}`}>
             {message.text}

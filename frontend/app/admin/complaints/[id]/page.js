@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useParams} from "next/navigation";
+import { useParams } from "next/navigation";
 import axiosClient, { getMediaUrl } from "../../../utils/apis";
 import AdminSidebar from "../../../components/AdminSidebarTemp";
 import { useComplaints } from "../../../contexts/complaintcontext";
 import Image from "next/image";
+import { COMPLAINT_STATUS } from "../../../constants/status";
+
 export default function ComplaintDetail() {
   const { fetchComplaints } = useComplaints();
   const { id } = useParams();
@@ -19,7 +21,7 @@ export default function ComplaintDetail() {
   const [updating, setUpdating] = useState(false);
 
   const oldStatusRef = useRef("");
-  
+
   useEffect(() => {
     const fetchComplaint = async () => {
       try {
@@ -43,7 +45,7 @@ export default function ComplaintDetail() {
 
     fetchComplaint();
   }, [id]);
-  
+
   const showMessage = (msgType, msgText) => {
     setMessage({ type: msgType, text: msgText });
 
@@ -52,7 +54,6 @@ export default function ComplaintDetail() {
     }, 10000);
   };
 
-  // ---------------- UPDATE COMPLAINT ----------------
   const updateComplaint = async () => {
     try {
       setUpdating(true);
@@ -64,29 +65,33 @@ export default function ComplaintDetail() {
 
       let payload = {};
 
-      if (status === "rejected") {
+      if (status === COMPLAINT_STATUS.REJECTED) {
         if (!rejectReason.trim()) {
           showMessage("error", "Please provide a reason for rejection.");
           return;
         }
 
         payload = {
-          status: "rejected",
+          status: COMPLAINT_STATUS.REJECTED,
           rejection_reason: rejectReason,
         };
-      } else if (status === "resolved") {
+      } 
+      
+      else if (status === COMPLAINT_STATUS.RESOLVED) {
         if (!solution.trim()) {
           showMessage("error", "Please provide a solution before resolving.");
           return;
         }
 
         payload = {
-          status: "resolved",
+          status: COMPLAINT_STATUS.RESOLVED,
           solution: solution,
         };
-      } else if (status === "verified") {
+      } 
+      
+      else if (status === COMPLAINT_STATUS.VERIFIED) {
         payload = {
-          status: "verified",
+          status: COMPLAINT_STATUS.VERIFIED,
         };
       }
 
@@ -119,15 +124,16 @@ export default function ComplaintDetail() {
   }
 
   const imageUrl = getMediaUrl(complaint.photo);
+
   return (
     <div className="flex min-h-screen bg-gray-900 text-white">
       <AdminSidebar />
-      
+
       <div className="flex-1 ml-56 overflow-y-auto p-6 lg:p-12">
         <h1 className="text-2xl lg:text-3xl font-bold mb-4 sticky top-0 bg-gray-900 z-10">
           Complaint Details
         </h1>
-        
+
         {message.text && (
           <div
             className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg text-center ${
@@ -140,46 +146,30 @@ export default function ComplaintDetail() {
           </div>
         )}
 
-        {/* COMPLAINT CARD */}
         <div className="w-full max-w-xl bg-gray-800/80 backdrop-blur-sm rounded-xl p-6 space-y-4 border border-gray-700 shadow-lg">
+
           <div className="space-y-2">
-            <p>
-              <b>User:</b> {complaint.user.username}
-            </p>
-            <p>
-              <b>Title:</b> {complaint.title}
-            </p>
-            <p>
-              <b>Description:</b>{" "}
-              {complaint.description || "No Description Provided"}
-            </p>
-            <p>
-              <b>Category:</b> {complaint.category}
-            </p>
-            <p>
-              <b>Status:</b> {complaint.status}
-            </p>
-            <p>
-              <b>Location:</b> {complaint.location}
-            </p>
+            <p><b>User:</b> {complaint.user.username}</p>
+            <p><b>Title:</b> {complaint.title}</p>
+            <p><b>Description:</b> {complaint.description || "No Description Provided"}</p>
+            <p><b>Category:</b> {complaint.category}</p>
+            <p><b>Status:</b> {complaint.status}</p>
+            <p><b>Location:</b> {complaint.location}</p>
           </div>
-          
+
           {complaint.photo && (
-  <button
-  type="button"
-  onClick={() => setShowImage(true)}
->
-  <Image
-    src={imageUrl}
-    alt="Complaint"
-    width={144}   
-    height={144}
-    className="w-36 h-36 object-cover rounded cursor-pointer hover:scale-105 transition-transform"
-    unoptimized
-  />
-</button>
-)}
-          
+            <button type="button" onClick={() => setShowImage(true)}>
+              <Image
+                src={imageUrl}
+                alt="Complaint"
+                width={144}
+                height={144}
+                className="w-36 h-36 object-cover rounded cursor-pointer hover:scale-105 transition-transform"
+                unoptimized
+              />
+            </button>
+          )}
+
           {updating && (
             <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
               <div className="text-white text-lg font-semibold animate-pulse">
@@ -187,7 +177,7 @@ export default function ComplaintDetail() {
               </div>
             </div>
           )}
-          
+
           {complaint.ai_recommended_solution && (
             <div className="mt-2 p-3 bg-gray-700 rounded border border-gray-600">
               <b>🤖 AI Suggested Solution:</b>
@@ -224,9 +214,10 @@ export default function ComplaintDetail() {
             </div>
           )}
 
-          {/* STATUS SELECT */}
           <div className="mt-4 flex flex-col space-y-2">
-            <label htmlFor="status" className="font-semibold">Update Status</label>
+            <label htmlFor="status" className="font-semibold">
+              Update Status
+            </label>
 
             <select
               value={status}
@@ -235,16 +226,21 @@ export default function ComplaintDetail() {
                 const newStatus = e.target.value;
 
                 const allowedTransitions = {
-                  submitted: ["verified", "resolved", "rejected"],
-                  verified: ["resolved", "rejected"],
-                  resolved: [],
-                  rejected: [],
+                  [COMPLAINT_STATUS.SUBMITTED]: [
+                    COMPLAINT_STATUS.VERIFIED,
+                    COMPLAINT_STATUS.RESOLVED,
+                    COMPLAINT_STATUS.REJECTED,
+                  ],
+                  [COMPLAINT_STATUS.VERIFIED]: [
+                    COMPLAINT_STATUS.RESOLVED,
+                    COMPLAINT_STATUS.REJECTED,
+                  ],
+                  [COMPLAINT_STATUS.RESOLVED]: [],
+                  [COMPLAINT_STATUS.REJECTED]: [],
                 };
 
                 if (
-                  !allowedTransitions[oldStatusRef.current].includes(
-                    newStatus
-                  )
+                  !allowedTransitions[oldStatusRef.current].includes(newStatus)
                 ) {
                   setMessage({
                     type: "error",
@@ -258,15 +254,14 @@ export default function ComplaintDetail() {
               }}
               className="p-2 rounded bg-gray-700 text-white border border-gray-600 w-full"
             >
-              <option value="submitted">Submitted</option>
-              <option value="verified">Verified</option>
-              <option value="resolved">Resolved</option>
-              <option value="rejected">Rejected</option>
+              <option value={COMPLAINT_STATUS.SUBMITTED}>Submitted</option>
+              <option value={COMPLAINT_STATUS.VERIFIED}>Verified</option>
+              <option value={COMPLAINT_STATUS.RESOLVED}>Resolved</option>
+              <option value={COMPLAINT_STATUS.REJECTED}>Rejected</option>
             </select>
           </div>
 
-          {/* SOLUTION / REASON */}
-          {status === "resolved" && (
+          {status === COMPLAINT_STATUS.RESOLVED && (
             <textarea
               className="w-full mt-2 p-3 rounded bg-gray-700 border border-gray-600 resize-none"
               placeholder="Enter solution..."
@@ -276,7 +271,7 @@ export default function ComplaintDetail() {
             />
           )}
 
-          {status === "rejected" && (
+          {status === COMPLAINT_STATUS.REJECTED && (
             <textarea
               className="w-full mt-2 p-3 rounded bg-gray-700 border border-gray-600 resize-none"
               placeholder="Enter rejection reason..."
@@ -286,12 +281,11 @@ export default function ComplaintDetail() {
             />
           )}
 
-          {/* UPDATE BUTTON */}
           <button
             onClick={updateComplaint}
             disabled={
-              complaint.status === "resolved" ||
-              complaint.status === "rejected"
+              complaint.status === COMPLAINT_STATUS.RESOLVED ||
+              complaint.status === COMPLAINT_STATUS.REJECTED
             }
             className="mt-4 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded transition-colors w-full disabled:bg-gray-700 disabled:cursor-not-allowed"
           >
@@ -300,7 +294,6 @@ export default function ComplaintDetail() {
         </div>
       </div>
 
-      {/* IMAGE MODAL */}
       {showImage && (
         <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
           <button
@@ -311,16 +304,14 @@ export default function ComplaintDetail() {
           </button>
 
           <div className="relative w-[90vw] h-[90vh]">
-  <Image
-    src={
-      getMediaUrl(complaint.photo)
-    }
-    alt="Full View"
-    fill
-    className="object-contain rounded-lg"
-    unoptimized
-  />
-</div>
+            <Image
+              src={getMediaUrl(complaint.photo)}
+              alt="Full View"
+              fill
+              className="object-contain rounded-lg"
+              unoptimized
+            />
+          </div>
         </div>
       )}
     </div>
