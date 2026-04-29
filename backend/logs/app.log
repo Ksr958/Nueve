@@ -63,3 +63,7 @@ smtplib.SMTPServerDisconnected: please run connect() first
 2026-04-29 13:49:37,426 [WARNING] django.request: Bad Request: /api/verify-otp/
 2026-04-29 13:50:36,170 [INFO] httpx: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
 2026-04-29 13:50:40,745 [INFO] utils.emails: Email sent successfully to kadagalasairohith.22.it@anits.edu.in
+2026-04-29 15:10:14,468 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-04-29 15:12:21,634 [INFO] django.utils.autoreload: Watching for file changes with StatReloader
+2026-04-29 15:16:04,619 [INFO] httpx: HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-29 15:16:09,295 [INFO] utils.emails: Email sent successfully to gayathri@gmail.com

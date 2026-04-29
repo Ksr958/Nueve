@@ -5,7 +5,7 @@ function resolveApiBaseUrl() {
     return process.env.NEXT_PUBLIC_API_BASE_URL;
   }
 
-  if (globalThis.window != "undefined") {
+  if (globalThis.window) {
   const { hostname } = globalThis.window.location;
   return `http://${hostname}:8000/api`;
 }
