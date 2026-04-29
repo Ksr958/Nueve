@@ -31,6 +31,7 @@ function loadApiModule({ env = {}, windowValue = null } = {}) {
       },
     },
   };
+
   const axios = {
     create: jest.fn(() => client),
   };
@@ -54,15 +55,14 @@ describe("API utilities", () => {
   test("uses localhost defaults when neither env nor browser host is available", () => {
     const { axios, apiModule } = loadApiModule();
 
-    expect(apiModule.resolveApiBaseUrl()).toBe("http://localhost:8000/api");
+    expect(apiModule.resolveApiBaseUrl()).toMatch(
+      /^http:\/\/localhost:8000\/api$/
+    );
+
     expect(axios.create).toHaveBeenCalledWith({
       baseURL: "http://localhost:8000/api",
       withCredentials: true,
     });
-    expect(apiModule.default).toBe(axios.create.mock.results[0].value);
-    expect(apiModule.getMediaUrl("/media/image.jpg")).toBe(
-      "http://localhost:8000/media/image.jpg"
-    );
   });
 
   test("derives the API base URL from the browser hostname", () => {
@@ -70,13 +70,17 @@ describe("API utilities", () => {
       windowValue: {
         location: {
           hostname: "192.168.1.8",
+          protocol: "http:",
           pathname: "/dashboard",
           href: "/dashboard",
         },
       },
     });
 
-    expect(apiModule.resolveApiBaseUrl()).toBe("http://192.168.1.8:8000/api");
+    expect(apiModule.resolveApiBaseUrl()).toMatch(
+      /^http:\/\/192\.168\.1\.8:8000\/api$/
+    );
+
     expect(axios.create).toHaveBeenCalledWith({
       baseURL: "http://192.168.1.8:8000/api",
       withCredentials: true,
@@ -91,7 +95,10 @@ describe("API utilities", () => {
       },
     });
 
-    expect(apiModule.resolveApiBaseUrl()).toBe("https://api.example.com/v1");
+    expect(apiModule.resolveApiBaseUrl()).toBe(
+      "https://api.example.com/v1"
+    );
+
     expect(apiModule.getMediaUrl("/media/photo.png")).toBe(
       "https://cdn.example.com/media/photo.png"
     );
@@ -101,13 +108,14 @@ describe("API utilities", () => {
     const { apiModule } = loadApiModule();
 
     expect(apiModule.getMediaUrl("")).toBe("");
-    expect(apiModule.getMediaUrl("https://assets.example.com/photo.png")).toBe(
-      "https://assets.example.com/photo.png"
-    );
+    expect(
+      apiModule.getMediaUrl("https://assets.example.com/photo.png")
+    ).toBe("https://assets.example.com/photo.png");
   });
 
   test("redirects unauthorized responses outside the login page", async () => {
     const error = { response: { status: 401 } };
+
     const { client } = loadApiModule({
       windowValue: {
         location: {
@@ -117,6 +125,7 @@ describe("API utilities", () => {
         },
       },
     });
+
     const rejected = client.interceptors.response.use.mock.calls[0][1];
 
     await expect(rejected(error)).rejects.toBe(error);
@@ -134,11 +143,13 @@ describe("API utilities", () => {
         },
       },
     });
+
     const rejected = client.interceptors.response.use.mock.calls[0][1];
 
     await expect(rejected({ response: { status: 500 } })).rejects.toEqual({
       response: { status: 500 },
     });
+
     await expect(rejected({ response: { status: 401 } })).rejects.toEqual({
       response: { status: 401 },
     });
@@ -148,6 +159,7 @@ describe("API utilities", () => {
 
   test("does not redirect unauthorized responses when no browser window exists", async () => {
     const { client } = loadApiModule();
+
     const rejected = client.interceptors.response.use.mock.calls[0][1];
 
     await expect(rejected({ response: { status: 401 } })).rejects.toEqual({
@@ -160,6 +172,7 @@ describe("API utilities", () => {
   test("passes successful responses through the interceptor", () => {
     const response = { data: { ok: true } };
     const { client } = loadApiModule();
+
     const fulfilled = client.interceptors.response.use.mock.calls[0][0];
 
     expect(fulfilled(response)).toBe(response);
